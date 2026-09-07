@@ -54,6 +54,12 @@ plugin publication are outside this architecture.
 
 ## Qualification still required before first deployment
 
+[ADR-0003](../decisions/ADR-0003-folder-deliverables-and-geotiff-terrain.md) sets
+the local delivery boundary: Reach–Survey–Event folders, vector/table GeoPackages,
+external GeoTIFF terrain and explicit metadata links. Do not promote the earlier
+GDAL raster-GeoPackage experiment as the cross-client terrain format. QGIS's own
+ability to read it would not establish ArcGIS interoperability.
+
 - Record the actual QGIS, R Provider, R, fluvgeo, sf/terra and GDAL/PROJ versions;
   select an isolated QGIS profile and R library. No supported matrix exists yet.
 - Test registration, displayed help, native parameter conversion, actual outputs,

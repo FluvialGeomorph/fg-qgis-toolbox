@@ -16,7 +16,9 @@ production workflow continues to operate.
 QGIS and Shiny should expose shared scientific capabilities in **fluvgeo**, not
 maintain separate scientific implementations. **FGDB** owns governed persistence
 and enterprise loading. Local spatial data target qualified **OGC GeoPackage**
-storage; original archives remain preserved evidence.
+storage for vectors/tables; numerical terrain uses external **GeoTIFFs** within
+a linked **Reach–Survey–Event folder**. Original archives remain preserved
+evidence. See the [folder/terrain decision](dev/decisions/ADR-0003-folder-deliverables-and-geotiff-terrain.md).
 
 The accepted [migration decision](dev/decisions/ADR-0001-parallel-open-source-migration.md)
 records ownership, production isolation and incremental verification. Separate

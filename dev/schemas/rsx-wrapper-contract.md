@@ -15,6 +15,9 @@
 - Write only declared, user-selected or test-owned outputs. Preserve archives;
   fail visibly on invalid inputs and unsafe destinations. No blanket error
   suppression, silent reprojection, or implied FGDB readiness from file creation.
+- Treat a Reach–Survey–Event folder as a linked delivery, not a single GeoPackage.
+  Terrain payloads are external GeoTIFFs; metadata resolution and validation
+  belong in fluvgeo. Follow [ADR-0003](../decisions/ADR-0003-folder-deliverables-and-geotiff-terrain.md).
 - Keep the initial body ordinary R; metadata/help are comments. Provider-specific
   executable syntax such as `>` needs actual provider tests before adoption.
 
