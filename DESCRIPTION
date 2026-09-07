@@ -1,0 +1,38 @@
+Package: fgqgis
+Title: FluvialGeomorph Tools for the QGIS R Processing Provider
+Version: 0.0.0.9000
+Authors@R: c(
+ person("Michael", "Dougherty", , "Michael.P.Dougherty@usace.army.mil",
+ role = "aut",
+ comment = c(ORCID = "0000-0002-1465-5927")),
+ person("Christopher", "Haring", , "Christopher.P.Haring@usace.army.mil",
+ role = "aut"),
+ person("Barrie", "Chileen Martinez", , "Barrie.V.Chileen@usace.army.mil",
+ role = c("aut", "cre"),
+ comment = c(ORCID = "0000-0002-6960-8167")),
+ person("Thomas", "Darby", role = "rev"),
+ person("Davi", "Michl", role = "rev")
+ )
+Description: Packages thin R script interfaces to FluvialGeomorph
+    scientific workflows for the QGIS Processing R Provider. Provides
+    development and testing infrastructure while keeping scientific
+    methods in the fluvgeo backend.
+License: CC0
+URL: https://github.com/FluvialGeomorph/fg-qgis-toolbox
+BugReports: https://github.com/FluvialGeomorph/fg-qgis-toolbox/issues
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+Suggests: 
+    fluvgeo,
+    fluvgeodata,
+    pkgload,
+    roxygen2,
+    rstudioapi,
+    sf,
+    testthat (>= 3.3.2),
+    testthis,
+    usethis,
+    withr
+Config/testthat/edition: 3
+Remotes: FluvialGeomorph/fluvgeo, FluvialGeomorph/fluvgeodata
+Config/roxygen2/version: 8.1.0
