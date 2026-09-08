@@ -2,6 +2,7 @@
 
 - Status: accepted migration design; provider integration pending.
 - Date: 2026-09-07
+- Reaffirmed by the user: 2026-09-08 after review of the cross-client experiment.
 - Refines ADR-0001/0002's local-storage direction without changing the R Provider.
 
 Adopt [the cross-repository decision and evidence](../../../FG-architecture/dev/decisions/adr-0004-folder-based-spatial-deliverables.md):
@@ -20,3 +21,10 @@ artifact, but must not claim it has reviewed a complete event delivery. Before
 terrain tools ship, qualify external GeoTIFF values, NoData, embedded CRS and
 metadata links through the actual R Provider. No tool/profile installation or
 data conversion follows from this decision.
+
+The [completed experiment](../../../FGDB/dev/experiments/geopackage-raster/FINAL-FINDINGS.md)
+supports this choice: ArcGIS read the nine numerical GeoPackages, but its tested
+creation path changed all ten terrain rasters to Byte/PNG imagery. QGIS's ability
+to process numerical GeoPackages does not make that round trip lossless. Continue
+the thin-wrapper plan against shared fluvgeo folder/GeoTIFF checks; do not add a
+tool that implies a single GeoPackage contains a complete scientific event.
