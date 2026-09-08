@@ -26,6 +26,7 @@ Suggests:
     fluvgeo,
     fluvgeodata,
     pkgload,
+    rmarkdown,
     roxygen2,
     rstudioapi,
     sf,

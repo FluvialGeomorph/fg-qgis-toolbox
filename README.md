@@ -2,8 +2,8 @@
 
 A QGIS toolbox for FluvialGeomorph's developing open-source workflow.
 
-Status: R package and development/test foundations implemented; no user-facing
-QGIS algorithms deployed and no installation procedure qualified yet.
+Status: first experimental report wrapper implemented; no QGIS algorithms
+deployed and no installation procedure qualified yet.
 
 ## Purpose
 
@@ -25,29 +25,33 @@ records ownership, production isolation and incremental verification. Separate
 repositories must also use appropriately isolated development runtimes and
 reviewed shared-backend versions; production upgrades are not automatic.
 
-## First proposed tool
+## First experimental tool
 
-**Review Stream Network GeoPackage** would expose the existing fluvgeo reader,
+**Review Stream Network GeoPackage** exposes the existing fluvgeo reader,
 validation and Terrain Development report through QGIS:
 
 1. Select an existing fluvgeo network GeoPackage.
 2. Inspect its network and findings, retaining explicit missing-context warnings.
 3. Generate a new durable HTML report without modifying sources or acceptance.
 
-The selected integration is the North Road Processing R Provider. First inspect
-the installed QGIS/R Provider/R environment. Then verify the tool end to end on a known fixture, including failure
-handling, unchanged source data and agreement with direct-R results. This
-bounded first tool can proceed while project-context storage is being designed.
+The packaged script is `fg_review_stream_network.rsx`. It accepts a complete
+fluvgeo network bundle and a new HTML destination, not a generic vector layer.
+This deliberately limited network-only view does not yet reopen the full saved
+Study Area context used by the Cole Creek development demonstration.
+
+The selected integration is the North Road Processing R Provider. Direct-R
+tests exercise the actual script; actual QGIS execution remains unqualified.
+See [behavior and qualification](dev/features/review-stream-network.md).
 
 ## Package foundation
 
-The R package is **fgqgis**; its future `.rsx` tools will appear in the
+The R package is **fgqgis**; its `.rsx` tools are intended to appear in the
 **FluvialGeomorph** group under QGIS's existing **R** Provider. Each tool has
 inline help and delegates scientific work to fluvgeo. This is not a new Python
 plugin. The [working architecture decision](dev/decisions/ADR-0002-r-package-processing-foundation.md)
 records the package, provider and testing choices.
 
-- `inst/rscripts/`: future deployable wrappers, currently none.
+- `inst/rscripts/`: one experimental wrapper, not approved for deployment.
 - `R/` and `man/`: documented package support; `qgis_scripts()` locates assets
   without installing or configuring anything.
 - `tests/testthat/`: fast package tests and a separate testthis wrapper suite

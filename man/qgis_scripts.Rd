@@ -11,7 +11,8 @@ Character vector of absolute paths to packaged \code{.rsx} files.
 }
 \description{
 Returns paths only. Does not configure QGIS, copy scripts, install packages,
-or execute an algorithm. The foundation release contains no deployable tools.
+or execute an algorithm. Packaged experimental scripts require separate
+QGIS runtime qualification before deployment.
 }
 \examples{
 qgis_scripts()

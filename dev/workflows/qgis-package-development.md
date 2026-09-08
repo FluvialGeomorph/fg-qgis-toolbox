@@ -50,6 +50,12 @@ GeoPackages, checks CRS/coordinates/attributes, compares fluvgeo validation,
 propagates malformed-input errors, and hashes original archive files. It does
 **not** qualify whole-archive conversion, terrain development or FGDB loading.
 
+The experimental network-review test additionally uses the retained 2006
+network, compares direct-R summaries, renders HTML and tests source/overwrite
+safety. It requires Pandoc (see workstation routing) and temporarily selects a
+Windows UTF-8 character locale for Unicode paths. See its
+[verification record](../features/review-stream-network.md).
+
 Sourcing an `.rsx` with supplied R objects tests adapter behavior only. It does
 not test the provider parser, transport or UI. After package tests, perform the
 separate QGIS qualification in the [boundary review](../architecture/qgis-r-boundary.md).

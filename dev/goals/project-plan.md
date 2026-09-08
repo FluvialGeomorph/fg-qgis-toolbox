@@ -9,17 +9,19 @@ preparation without replacing production ArcGIS prematurely.
 
 ## Current scope
 
-Package and AI-assisted development foundations before functionality deployment:
-usethis package scaffold, reproducibleai context, `.rsx` authoring rules, testthis
-wrapper tests using fluvgeodata, and an upstream provider compliance review.
+Package and AI-assisted foundations are implemented. The first experimental
+network-review wrapper now delegates to the fluvgeo Terrain Development report.
+Its [feature record](../features/review-stream-network.md) separates direct-R
+verification from outstanding QGIS qualification.
 
 ## Next bounded milestone
 
-Implement and qualify the previously proposed **Review Stream Network
-GeoPackage** wrapper: read an existing governed bundle, show findings and produce
-a new Terrain Development report. First inspect the actual QGIS/R Provider
-environment and define the input/output boundary; do not silently configure a
-production profile. Missing Study Area context must remain visible.
+Qualify **Review Stream Network GeoPackage** in an actual QGIS/R Provider
+environment. Standard installation/profile discovery found no usable runtime on
+2026-09-08; an existing portable/custom installation remains unknown. Obtain the
+runtime location or a reviewed isolated installation before proceeding. Do not
+silently configure a production profile. Missing Study Area context remains
+visible in this network-only tool.
 
 Success requires direct-R agreement **and** actual provider execution, useful
 inline help, explicit failures and unchanged source evidence. Package tests alone
