@@ -47,8 +47,12 @@ North Road R Provider generated the report, its tables agreed with direct R,
 and the source stayed unchanged. Two environment conflicts were addressed;
 they were not GeoPackage format failures or changes to the scientific methods.
 
-**Next:** an analyst-run trial in an isolated QGIS 3.44 profile, checking file
-selection, report opening and cancellation. This is not yet a production release
+The cancellation candidate passed eight regression cases, the real report
+comparison and the analyst's desktop confirmation. **Next:** review how to
+maintain or contribute the provider change before production adoption. The
+official plugin and original trial profile remain unchanged. See the
+[desktop confirmation](dev/features/qgis-provider-qualification.md#desktop-cancellation-confirmation-2026-09-09).
+This is not yet a production release
 or proof of complete Study Area, vector/raster or FGDB interoperability.
 Read [the current plan](dev/goals/project-plan.md) for scope,
 [the qualification summary](dev/features/qgis-provider-qualification.md) for

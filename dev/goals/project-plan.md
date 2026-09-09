@@ -19,12 +19,23 @@ read-only tool, not complete interoperability. See the
 
 ## Next bounded milestone
 
-Complete an **analyst-run trial in an isolated QGIS 3.44 profile**: select the
-network file and a persistent report destination, run the tool, open the report,
-and check cancellation and child-process cleanup. Offscreen dialog inspection
-has passed but does not replace this interaction. Record actionable usability
-issues and failures before adding more tools. Do not configure a production
-profile or upgrade shared packages as a side effect.
+The analyst trial has been returned and reviewed: desktop report generation
+works, but Cancel was delayed and a complete report remained after QGIS reported
+failure. See the [return findings](../features/qgis-provider-qualification.md#analyst-trial-return-2026-09-09).
+
+An isolated provider candidate now passes eight cancellation/exit regression
+cases and the real Cole Creek/direct-R comparison. It checks cancellation without
+waiting for R console output and returns no successful results for canceled runs.
+See [the measured candidate results](../features/qgis-provider-qualification.md#cancellation-candidate-2026-09-09).
+
+The [candidate desktop check](../features/qgis-provider-qualification.md#desktop-cancellation-confirmation-2026-09-09)
+is now complete: the log confirms the candidate, the analyst reports immediate
+cancellation, and no requested HTML was left behind. No further repetition of
+this analyst test is needed. Next review the upstream/maintenance path for the
+provider change before production adoption;
+the candidate does not change the official plugin, existing profile, R scientific
+methods or production deployment. The bounded cancellation test is closed;
+broader release/dependency qualification remains separate.
 
 Success requires direct-R agreement **and** actual provider execution, useful
 inline help, explicit failures and unchanged source evidence. Package tests alone
@@ -35,7 +46,7 @@ migration or enterprise loading as part of that first wrapper.
 
 The tool accepts only a network bundle: it cannot reopen the full Study Area,
 event inventory or terrain links from that file. Missing context remains visible.
-After the desktop trial, use its feedback and the
+Use the returned desktop trial's feedback and the
 [fluvgeo plan](../../../fluvgeo/dev/goals/project-plan.md) to select the next
 study-context capability. Complete folder binding, broader client qualification
 and deployment remain separate work. The accepted GeoPackage-vector/GeoTIFF-terrain

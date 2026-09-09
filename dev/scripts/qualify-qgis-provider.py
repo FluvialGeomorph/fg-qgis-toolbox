@@ -1,8 +1,10 @@
-"""Exercise the unmodified R Provider in an isolated headless QGIS profile.
+"""Exercise an explicitly supplied R Provider in an isolated headless QGIS profile.
 
 Run with the OSGeo4W python-qgis-ltr launcher. No installs or downloads occur.
 Arguments: --osgeo --plugin-parent --r-home --r-library --input --output-root.
 Use a NEW output root; raw evidence is written there, not into the user profile.
+The normal input is upstream 4.1.0; development candidates must identify their
+variant in plugin metadata. Results record the actual supplied version.
 """
 import argparse
 import hashlib
@@ -21,7 +23,11 @@ p.add_argument("--isolate-r-spatial-env", action="store_true",
                help="Test R without inherited OSGeo GDAL/PROJ overrides; changes this process only")
 p.add_argument("--inspect-dialog-only", action="store_true",
                help="Inspect/render the real Qt parameter dialog offscreen, without running R")
+p.add_argument("--prepare-desktop-trial", action="store_true",
+               help="Stage the tested provider in a new isolated desktop-compatible profile")
 a = p.parse_args()
+if a.prepare_desktop_trial and (a.inspect_dialog_only or a.isolate_r_spatial_env):
+    p.error("Desktop preparation requires the complete packaged-guard qualification")
 root = a.output_root.resolve()
 root.mkdir(parents=True, exist_ok=False)
 os.environ["QT_QPA_PLATFORM"] = "offscreen"
@@ -44,17 +50,25 @@ assert any(line.startswith(expected_package) for line in inventory.splitlines())
 dll_handles = [os.add_dll_directory(str(a.osgeo / part)) for part in
                ("bin", "apps/Qt5/bin", "apps/qgis-ltr/bin")]
 sys.path.insert(0, str(a.osgeo / "apps/qgis-ltr/python/plugins"))
-sys.path.insert(0, str(a.plugin_parent.resolve()))
+plugin_parent = a.plugin_parent.resolve()
+if a.prepare_desktop_trial:
+    plugin_parent = root / "profile/profiles/default/python/plugins"
+    plugin_parent.mkdir(parents=True)
+    shutil.copytree(a.plugin_parent.resolve() / "processing_r",
+                    plugin_parent / "processing_r",
+                    ignore=shutil.ignore_patterns("__pycache__", "*.pyc"))
+sys.path.insert(0, str(plugin_parent))
 from qgis.core import (Qgis, QgsApplication, QgsProcessingContext,
                        QgsProcessingFeedback, QgsCoordinateReferenceSystem,
                        QgsCoordinateTransform, QgsProject, QgsPointXY)
 from qgis.PyQt.QtCore import QSettings, QCoreApplication
 
 QSettings.setDefaultFormat(QSettings.IniFormat)
-QSettings.setPath(QSettings.IniFormat, QSettings.UserScope, str(root / "settings"))
-QCoreApplication.setOrganizationName("fgqgis-qualification")
-QCoreApplication.setApplicationName("isolated-provider-test")
-(root / "profile").mkdir()
+settings_root = (root / "profile/profiles/default") if a.prepare_desktop_trial else (root / "settings")
+QSettings.setPath(QSettings.IniFormat, QSettings.UserScope, str(settings_root))
+QCoreApplication.setOrganizationName("QGIS" if a.prepare_desktop_trial else "fgqgis-qualification")
+QCoreApplication.setApplicationName("QGIS3" if a.prepare_desktop_trial else "isolated-provider-test")
+(root / "profile").mkdir(exist_ok=a.prepare_desktop_trial)
 app = QgsApplication([], a.inspect_dialog_only, str(root / "profile"))
 print("Profile before initialization: " + QgsApplication.qgisSettingsDirPath(), flush=True)
 print("QGIS application created", flush=True)
@@ -73,6 +87,13 @@ assert roundtrip_error < 1e-8, "CRS round-trip smoke check failed (not a survey 
 from processing.core.ProcessingConfig import ProcessingConfig
 from processing_r.processing.provider import RAlgorithmProvider
 from processing_r.processing.utils import RUtils, plugin_version
+if a.prepare_desktop_trial:
+    settings = QSettings()
+    assert Path(settings.fileName()).resolve() == settings_root / "QGIS/QGIS3.ini"
+    settings.setValue("PythonPlugins/processing", True)
+    settings.setValue("PythonPlugins/processing_r", True)
+    settings.sync()
+    assert settings.status() == QSettings.NoError
 print("Processing and R Provider imported", flush=True)
 sys.excepthook = sys.__excepthook__
 sys.stderr = sys.__stderr__
@@ -208,3 +229,24 @@ with (root / "direct-evidence.log").open("w", encoding="utf-8") as log:
                     str(Path(__file__).with_name("qgis-direct-evidence.R")),
                     str(a.r_library.resolve()), str(copied), str(root)],
                    stdout=log, stderr=subprocess.STDOUT, check=True)
+
+if a.prepare_desktop_trial:
+    # Publish the launch manifest only after all real-provider checks pass.
+    settings.sync()
+    trial = {
+        "schema_version": 1,
+        "status": "prepared-not-analyst-qualified",
+        "root": str(root), "osgeo": str(a.osgeo.resolve()),
+        "profiles_path": str(root / "profile"), "profile_name": "default",
+        "r_home": str(a.r_home.resolve()), "r_library": str(a.r_library.resolve()),
+        "input": str(copied), "input_sha256": digest(copied),
+        "suggested_output": str(root / "analyst report.html"),
+        "qgis": record["qgis"], "provider": record["provider"],
+        "proj_sha256": digest(a.osgeo / "share/proj/proj.db"),
+        "script_sha256": digest(installed_script),
+        "plugin_files": {str(f.relative_to(plugin_parent)): digest(f)
+                         for f in sorted((plugin_parent / "processing_r").rglob("*"))
+                         if f.is_file() and "__pycache__" not in f.parts and f.suffix != ".pyc"},
+    }
+    (root / "trial.json").write_text(json.dumps(trial, indent=2), encoding="utf-8")
+    print("Desktop trial prepared; analyst interaction remains untested", flush=True)

@@ -23,7 +23,7 @@ Report generation does not imply scientific acceptance or FGDB load readiness.
 | QGIS's inherited spatial settings conflicted with R's own libraries. | The packaged R guard isolates only recognized settings before backend loading; unfamiliar configurations are refused. |
 | Legacy OSGeo4W packages had overwritten newer coordinate-system resources. | Six package-owned files were restored from the verified archive, with backups. This was a separate installation repair, not a change to the science or GeoPackage format. |
 | Missing inputs and overwrites fail without changing sources or existing reports. | Safety checks work; the upstream provider's extra error traceback remains a usability issue. |
-| The real parameter dialog renders and preserves its input/output values offscreen. | Actual analyst interaction, report opening and cancellation still need a desktop trial. |
+| The real parameter dialog renders and preserves its input/output values offscreen; the subsequent analyst run generated the report. | The returned trial exposed delayed cancellation and conflicting failure/output messages; see the review below. |
 
 These results concern **execution interoperability**. The earlier
 [raster storage experiment](../../../FGDB/dev/experiments/geopackage-raster/FINAL-FINDINGS.md)
@@ -31,8 +31,11 @@ asked a different question and supports the accepted GeoPackage-vector/GeoTIFF-t
 folder design. This test neither reopens that decision nor establishes general
 geometry, raster or CRS round-trip equivalence.
 
-**Next action:** complete the isolated analyst trial in the
-[project plan](../goals/project-plan.md). Technical details follow for developers;
+**Next action:** review the provider-maintenance/upstream path before production
+adoption. The isolated candidate now has both regression evidence and a successful
+[desktop cancellation confirmation](#desktop-cancellation-confirmation-2026-09-09);
+it is not a production plugin update.
+See the [project plan](../goals/project-plan.md). Technical details follow for developers;
 the [repair record](../workflows/osgeo-proj-repair.md) owns package hashes,
 backups, cause and recovery limits.
 
@@ -80,7 +83,8 @@ failures are not wrapper test failures.
   not success, but the secondary traceback is confusing. Do not suppress the
   backend failure or manufacture a success result to avoid that traceback.
 - Inline help and the real Qt parameter dialog were inspected offscreen on
-  2026-09-09. An analyst's interactive usability test remains outstanding.
+  2026-09-09. Subsequent analyst execution is recorded in the return review below;
+  broader usability and cancellation qualification remain open.
 
 ## Historical diagnostic evidence: 2026-09-08
 
@@ -176,10 +180,122 @@ disposable copy of the original mismatched database before QGIS initialization.
 The 51 fast assertions and strict context validation also passed; details and
 remaining limits are in the maintenance record. These checks are not a QGIS release.
 
+## Analyst trial return: 2026-09-09
+
+**Outcome:** desktop access to the R report works. Cancellation does not yet meet
+the expected interaction contract; this is developer work, not analyst error.
+
+The analyst returned `analyst_report.html`, `analyst_report2.html`, `log-1.txt`
+and `log-2.txt` under `dev/check-output/desktop-trial-v1/Cole Créek inputs/`.
+The saved text logs use Windows-1252; decoding them as UTF-8 can display replacement
+characters and is not evidence that the input path was corrupted.
+
+| Evidence | Finding |
+| --- | --- |
+| Verified first execution log | QGIS 3.44.14 / R Provider 4.1.0 invoked the configured test library and R guard; the run completed in 11.28 seconds. |
+| Verified returned HTML | Both reports have nine tables agreeing with the retained direct-R baseline except the validation timestamp, and both have closing HTML markup. These checks do not constitute a separate visual comparison of every figure. |
+| Verified source integrity | The trial input and original source still match the recorded SHA-256 `5200dd479aee0bf85c8a5430c9cfb556f6aa920c2a4611c5248f6aa26751df6f`. Launch dependency checks still pass. |
+| Analyst observation | The analyst completed the short test and explicitly confirmed pressing Cancel on the second run, with a delay. |
+| Verified second execution log | It reports failure after 11.18 seconds, then says HTML was generated. The second report exists and its checked contents are complete; it is not an accepted successful run merely because the file exists. |
+
+**Verified source behavior:** the installed provider's `processing/utils.py`
+`execute_r_algorithm()` waits for `proc.stdout.readline()` and checks
+`feedback.isCanceled()` only after receiving a line. It calls `terminate()` on
+the immediate R process, not an explicit process-tree cleanup operation.
+The backend publishes the staged HTML before the provider returns output values.
+QGIS's `AlgorithmDialog.finish()` adds returned HTML to its results list even
+when the completion status is unsuccessful. This explains the conflicting
+failure/HTML messages without reclassifying the failed run as successful.
+
+**Inference:** quiet R rendering delayed cancellation handling, allowing report
+publication before the run finished with a canceled/unsuccessful status. The
+source supports that mechanism, but the saved logs contain no cancellation-click
+timestamp, so the exact delay and ordering cannot be reconstructed.
+
+**Cleanup limits:** a later process snapshot found no Rscript or Pandoc process;
+an Rterm session predated the trial and was left untouched. That is not evidence
+of prompt child cleanup at the time of cancellation. Process-parent inspection
+was unavailable on this host. No staging files remained beside the submitted
+reports; temporary-directory cleanup at cancellation was not observed.
+
+The original reports/logs were preserved. Read-only table comparison evidence is
+under ignored `dev/check-output/desktop-trial-review-v1/`. This review does not
+patch the installed provider, change scientific methods, or approve deployment.
+
+## Cancellation candidate: 2026-09-09
+
+**Implemented, development only:** `4.1.0-fg-cancel1` adapts a checksum-pinned
+copy of North Road 4.1.0. It polls process state independently of console output,
+stops only the owned Windows R process tree on cancellation, checks cancellation
+before output handoff, and reports nonzero R exit status without the secondary
+missing-output-file traceback. Science and the `.rsx` tool are unchanged.
+The [candidate notes and reproducible staging](../patches/r-provider-cancellation/README.md)
+record its source, licensing, safety limits and non-deployment status.
+
+**Verified:** the original provider took 3.765 seconds to return after cancellation
+during a four-second quiet fixture and still returned success plus an HTML path.
+In the final candidate run, quiet cancellation returned in 0.188 seconds;
+post-publication cancellation in 0.172 seconds; child-process cancellation in
+0.141 seconds. These are local measurements, not general timing guarantees.
+All canceled cases returned an unsuccessful status and an empty result mapping.
+Already-written files were retained with an explicit unaccepted-output warning.
+
+Eight cases pass: quiet cancellation, normal completion, nonzero exit,
+pre-canceled start, cancellation after publication, cancellation at output parsing,
+large console output, and cancellation with a real child R process. An open
+Windows process handle verified that the known child exited, rather than merely
+disappearing from a process-name listing. The output-parsing timing case uses a
+scoped test hook because QGIS clones algorithms; it is not a recorded human click.
+
+Evidence: `dev/check-output/cancel-baseline-v1/` and
+`dev/check-output/cancel-candidate-v1/tests-complete/`. The earlier sandbox-denied
+cleanup attempt is not a pass; the permitted run exercised actual termination
+of only test-created processes. An intermediate timing-test hook failed to reach
+the cloned algorithm; the corrected class-scoped hook is restored after its case.
+
+The same candidate also passes real Cole Creek report generation, source hashes,
+overwrite/missing-input failures and agreement of all nine direct-R tables except
+the validation timestamp (`dev/check-output/desktop-trial-cancel-v1/`). The latter
+contains a separate prepared profile with the visibly identified candidate.
+The original analyst profile, upstream source and submitted evidence are unchanged.
+
+**Still unqualified:** detached/reparented children, cancellation after provider-to-QGIS handoff, complete
+temporary-file cleanup, other operating systems and production distribution.
+Forcefully stopped R cannot be assumed to run cleanup hooks. No source/output
+deletion or transaction rollback is implemented; retained canceled files are not
+automatically accepted. Upstream contribution or a maintained production adaptation
+requires separate review; nothing has been submitted or deployed automatically.
+
+## Desktop cancellation confirmation: 2026-09-09
+
+**Verified:** the returned `desktop-trial-cancel-v1/Cole Créek inputs/log-1.txt`
+identifies **4.1.0-fg-cancel1**, records the explicit cancellation message and no
+successful HTML result. The requested `analysis_report.html` is absent; the
+source/dependency hash preflight still passes. The run began at 15:06:00 local
+time and ended after 1.44 seconds total. That total is not a measurement of
+button-click-to-stop latency; the log does not timestamp the click.
+
+**Analyst observation:** after closing QGIS and launching the candidate profile,
+the analyst reported that Cancel was immediate. This completes the bounded
+desktop confirmation for this tool/runtime, alongside the earlier controlled
+timing and child-cleanup tests. No repeat of this analyst exercise is requested.
+
+The preceding `log-3.txt` and `log-4.txt` in the original trial directory identify
+official **4.1.0**, so their delayed results are baseline observations, not
+candidate failures. Selecting another data folder does not change the provider
+loaded in an already-running QGIS session. The guide now makes that distinction
+explicit. Original evidence and profiles are preserved.
+
 ## Remaining qualification
 
-**Still unknown/unqualified:** interactive parameter/help usability, actual
-desktop profile loading, cancellation/child cleanup, temporary-output lifecycle,
+The [isolated analyst trial](../workflows/qgis-desktop-trial.md) is prepared.
+On 2026-09-09, its copied provider and desktop-compatible settings passed the
+actual success/failure cases, source preservation and direct-R table comparison
+again (`dev/check-output/desktop-trial-v1/`). Launch preflight passes. This is
+preparation evidence; the subsequent desktop results are recorded above.
+
+**Still unknown/unqualified:** broader interactive usability, cancellation/child
+cleanup beyond the tested cases, temporary-output lifecycle,
 missing installed dependencies/Pandoc in the provider, broader CRS/grid fidelity,
 QGIS 4 compatibility and release-version dependency bounds. Follow the remaining
 [boundary checklist](../architecture/qgis-r-boundary.md); do not promote this
