@@ -39,17 +39,21 @@ fluvgeo network bundle and a new HTML destination, not a generic vector layer.
 This deliberately limited network-only view does not yet reopen the full saved
 Study Area context used by the Cole Creek development demonstration.
 
-The selected integration is the North Road Processing R Provider. Direct-R tests
-and actual QGIS 3.44.14/Provider 4.1.0 headless execution now exercise the script.
-The R boundary and local PROJ repair are verified; remaining desktop checks
-still prevent production deployment qualification. See [behavior](dev/features/review-stream-network.md)
-and [QGIS findings](dev/features/qgis-provider-qualification.md).
+## What the first test tells us
 
-Version 0.0.0.9001 adds a conservative R runtime guard: recognized OSGeo4W
-resource overrides are isolated before backend loading; unfamiliar custom paths
-are refused. The guard is tested through the real provider. QGIS's stale PROJ
-package data was repaired on 2026-09-09; the real parameter dialog was also
-tested offscreen. See the [repair record](dev/workflows/osgeo-proj-repair.md).
+The question was whether QGIS can be the desktop interface to our existing R
+science, without duplicating it. **For this one read-only tool, yes:** the actual
+North Road R Provider generated the report, its tables agreed with direct R,
+and the source stayed unchanged. Two environment conflicts were addressed;
+they were not GeoPackage format failures or changes to the scientific methods.
+
+**Next:** an analyst-run trial in an isolated QGIS 3.44 profile, checking file
+selection, report opening and cancellation. This is not yet a production release
+or proof of complete Study Area, vector/raster or FGDB interoperability.
+Read [the current plan](dev/goals/project-plan.md) for scope,
+[the qualification summary](dev/features/qgis-provider-qualification.md) for
+what passed and what remains, and [the tool contract](dev/features/review-stream-network.md)
+for exact behavior. The installation repair is supporting evidence linked there.
 
 ## Package foundation
 

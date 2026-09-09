@@ -1,12 +1,40 @@
 # First actual QGIS R Provider qualification
 
-Date: 2026-09-08. Status: headless integration exercised; **not deployed or
-fully desktop-qualified**. This supplements the direct-R wrapper tests.
+Reviewed: 2026-09-09. Status: one actual provider/backend path verified;
+**not deployed or fully desktop-qualified**.
 
-Update 2026-09-09: the local PROJ data repair is complete and verified; the
-provider and direct-R comparison pass afterwards. A real Qt parameter dialog
-was inspected offscreen. See the [repair and verification record](../workflows/osgeo-proj-repair.md).
-The environment-failure discussion below is retained as dated investigation evidence.
+## Project question and conclusion
+
+Can QGIS provide the desktop interface to fluvgeo's R science without a second
+scientific implementation? **This first read-only reporting tool demonstrates
+that connection.** QGIS passes a network GeoPackage path to the R backend and
+receives a new HTML report. Its nine tables agree with direct R, apart from the
+fresh validation timestamp, and the source remains unchanged.
+
+This enables the planned desktop workflow; it is not a complete Study Area tool.
+The network file alone does not contain the full parent/event/terrain context.
+Report generation does not imply scientific acceptance or FGDB load readiness.
+
+## What the test revealed
+
+| Finding | Resolution or implication |
+| --- | --- |
+| QGIS could invoke the packaged R wrapper and return a report. | The thin-wrapper approach works for this input/tool/runtime combination. |
+| QGIS's inherited spatial settings conflicted with R's own libraries. | The packaged R guard isolates only recognized settings before backend loading; unfamiliar configurations are refused. |
+| Legacy OSGeo4W packages had overwritten newer coordinate-system resources. | Six package-owned files were restored from the verified archive, with backups. This was a separate installation repair, not a change to the science or GeoPackage format. |
+| Missing inputs and overwrites fail without changing sources or existing reports. | Safety checks work; the upstream provider's extra error traceback remains a usability issue. |
+| The real parameter dialog renders and preserves its input/output values offscreen. | Actual analyst interaction, report opening and cancellation still need a desktop trial. |
+
+These results concern **execution interoperability**. The earlier
+[raster storage experiment](../../../FGDB/dev/experiments/geopackage-raster/FINAL-FINDINGS.md)
+asked a different question and supports the accepted GeoPackage-vector/GeoTIFF-terrain
+folder design. This test neither reopens that decision nor establishes general
+geometry, raster or CRS round-trip equivalence.
+
+**Next action:** complete the isolated analyst trial in the
+[project plan](../goals/project-plan.md). Technical details follow for developers;
+the [repair record](../workflows/osgeo-proj-repair.md) owns package hashes,
+backups, cause and recovery limits.
 
 ## Runtime and isolation
 
@@ -32,8 +60,10 @@ providers. Its scripts folder is `inst/rscripts`, never the repository root.
 Qt runs offscreen. `QGIS_CUSTOM_CONFIG_PATH` and isolated INI settings keep
 profile writes inside the run directory; the harness asserts the resolved
 profile location. R user startup files are disabled with test-local nonexistent
-paths. No shared QGIS/R installation, normal profile, ArcGIS tool or Shiny app
-was modified. Early harness discovery failures are not wrapper test failures.
+paths. The harness does not modify shared installations, normal profiles,
+ArcGIS tools or Shiny apps. The separately authorized 2026-09-09 repair did
+change six shared OSGeo4W data files, as recorded above. Early harness discovery
+failures are not wrapper test failures.
 
 ## Verified behavior
 
@@ -49,20 +79,19 @@ was modified. Early harness discovery failures are not wrapper test failures.
   `FileNotFoundError` for its absent `processing_values.txt`. QGIS reports failure,
   not success, but the secondary traceback is confusing. Do not suppress the
   backend failure or manufacture a success result to avoid that traceback.
-- Inline help was generated and saved as HTML; visual QGIS dialog/help review
-  has not occurred. A successful headless run is not a GUI usability test.
+- Inline help and the real Qt parameter dialog were inspected offscreen on
+  2026-09-09. An analyst's interactive usability test remains outstanding.
 
-## Environmental findings and limits
+## Historical diagnostic evidence: 2026-09-08
 
-The paragraphs below preserve the initial experiment. The later packaged guard
-is described under "Packaged runtime boundary" below; wholesale removal by the
-test harness is no longer required for the tool to isolate recognized settings.
+The observations below explain how the failures were isolated. Both the packaged
+guard and subsequent local repair are now complete; these are not current blockers.
 
-**Verified:** QGIS initialization reports that the OSGeo4W `share/proj/proj.db`
-has layout minor version 2 while its loaded PROJ requires at least 4. This is
+**Verified at baseline:** QGIS initialization reported that the OSGeo4W `share/proj/proj.db`
+had layout minor version 2 while its loaded PROJ required at least 4. This was
 an environment consistency failure, not a demonstrated wrapper geometry bug.
-Repairing the shared OSGeo4W installation is outside this test; no database was
-replaced and no CRS definitions were silently substituted.
+The initial experiment did not modify that database. The separately authorized
+repair and post-repair checks are recorded in the maintenance record.
 
 **Verified:** the inherited OSGeo4W GDAL plugin path causes R's independently
 bundled GDAL to try loading incompatible OSGeo4W driver DLLs. The baseline direct
@@ -73,8 +102,8 @@ insufficient for deployment qualification.
 The harness can test removal of `GDAL_DRIVER_PATH`, `GDAL_DATA`, `PROJ_LIB` and
 `PROJ_DATA` after QGIS initialization, before its R subprocess starts. This is a
 process-local experiment, not a shipped wrapper behavior or a general policy to
-discard legitimate user-selected grids/drivers. A durable R subprocess
-environment contract remains to be designed before deployment.
+discard legitimate user-selected grids/drivers. The resulting packaged boundary
+is described below; the comparison flag is no longer needed for normal execution.
 
 **Verified controlled comparison (`run-13`):** clearing those inherited spatial
 overrides removed all captured R warnings, and the real provider's successful
@@ -122,22 +151,13 @@ success/error. See [ADR-0004](../decisions/ADR-0004-r-spatial-runtime-boundary.m
 The direct-R comparison now invokes that same environment helper; its scientific
 summary/report calls remain direct fluvgeo calls.
 
-Read-only SQLite inspection confirmed that the actual OSGeo4W `proj.db` reports
-PROJ **8.2.1**, database layout **1.2**, EPSG **v10.041** dated **2021-12-03**.
-The file's recorded modification date is 2022-01-04. OSGeo4W's package inventory
-lists PROJ **9.8.1** and the installed QGIS runtime rejects this old database.
-Thus the stale file is verified; how it survived the installation/update is
-unknown. Recommended repair is through the installation's package manager,
-with before/after checks, not copying R's database or editing CRS records by hand.
-No shared installation repair has been performed.
-
-Verified packaged run (`run-14`): installed fgqgis **0.0.0.9001** supplies both
+Verified packaged run before the repair (`run-14`, 2026-09-08): installed fgqgis **0.0.0.9001** supplies both
 the script and guard, with no `--isolate-r-spatial-env` harness flag. The wrapper
 reports its own isolation; report generation, unchanged-source checks,
 overwrite refusal and missing-input failure all pass. Direct-R evidence captures
 zero warnings; all nine HTML tables match after allowing only the generated
 validation timestamp to differ. The provider's extra failure traceback and
-QGIS's initialization warning remain visible. Fast tests now include 23 guard
+QGIS's initialization warning remained visible in that run. Fast tests include 23 guard
 assertions (path recognition/refusal, preloaded namespace refusal, caller
 evaluation and restoration after success/error), plus 28 script-contract
 assertions; the 66 testthis integration assertions also pass. The source-loaded
@@ -150,11 +170,13 @@ used `_R_CHECK_FORCE_SUGGESTS_=false`; absent optional backend/data/testthis
 packages were exercised separately by the explicit suite and provider run.
 Strict context validation passed with the two existing seeded-content warnings.
 
-The 27 fast package assertions and strict reproducibleai context validation
-were rerun successfully (two existing seeded-content warnings). No packaged
-wrapper/backend behavior changed in this turn; the new code is development-only
-qualification tooling. The previous package build/check is not a QGIS release
-qualification. Changes remain available for user review and commit.
+After the 2026-09-09 repair, provider execution and direct-R comparison passed
+again, without the QGIS PROJ initialization warning. The preflight rejected a
+disposable copy of the original mismatched database before QGIS initialization.
+The 51 fast assertions and strict context validation also passed; details and
+remaining limits are in the maintenance record. These checks are not a QGIS release.
+
+## Remaining qualification
 
 **Still unknown/unqualified:** interactive parameter/help usability, actual
 desktop profile loading, cancellation/child cleanup, temporary-output lifecycle,

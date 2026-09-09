@@ -68,24 +68,16 @@ seeded-content warnings. No installed-version compatibility matrix is implied.
 
 ## Remaining qualification gate
 
-Update: the user supplied a runtime lead and actual headless provider execution
-has now been tested. See [QGIS qualification](qgis-provider-qualification.md)
-for results, environment problems and remaining gates. The following discovery
-paragraph describes the earlier, incomplete search, not current availability.
+Updated 2026-09-09: runtime discovery and actual provider execution are complete.
+Report agreement, source preservation, missing-input/overwrite refusal and the
+scoped R guard have been verified. The separate QGIS installation conflict was
+repaired; its real parameter dialog was inspected offscreen.
 
-Read-only discovery found no QGIS executable on PATH, no QGIS directory under
-Program Files, Program Files (x86), LocalAppData/Programs or the drive root, no
-OSGeo directory at the drive root, no matching standard uninstall entry, and no
-standard AppData QGIS3 profiles. This does **not** exclude a portable/custom
-installation elsewhere. No runtime or plugin was downloaded or configured.
-
-Once a runtime is supplied, follow the full
-[boundary qualification checklist](../architecture/qgis-r-boundary.md). In an
-explicitly isolated profile/library, verify registration, inline help, file
-parameter transport, persistent and temporary HTML outputs, direct-R agreement,
-batch execution, invalid input, missing dependencies/Pandoc, cancellation,
-partial outputs, locking, Unicode paths/locale and unchanged sources. Capture
-the actual QGIS/provider/R/backend versions and reviewed results.
+The next step is an analyst-run isolated desktop trial, not another runtime
+search. See [the qualification summary](qgis-provider-qualification.md) for
+current evidence and outstanding interaction, cancellation, dependency and
+release checks. The [boundary checklist](../architecture/qgis-r-boundary.md)
+remains the broader coverage reference, not a claim that every item is complete.
 
 The experimental package keeps fluvgeo in Suggests with an explicit runtime API
 guard. This is **not** the release dependency contract: before deployment, qualify

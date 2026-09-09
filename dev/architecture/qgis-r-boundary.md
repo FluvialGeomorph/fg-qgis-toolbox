@@ -85,5 +85,6 @@ ability to read it would not establish ArcGIS interoperability.
 - Prove required scientific methods can run without ArcGIS. A thin R wrapper
   is not evidence that all fluvgeo dependencies are already open-source-only.
 
-Inference: this reuse should reduce bridge maintenance. Unknown: the operational
-quality of the local provider/backend combination until those tests run.
+Inference: this reuse should reduce bridge maintenance. Verified: one local
+read-only reporting path passes actual provider tests. Unknown: broader operational
+quality beyond the tested path, including the remaining interactive/release checks.

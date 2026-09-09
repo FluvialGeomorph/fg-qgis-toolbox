@@ -16,7 +16,9 @@ Chat transcripts and generated output are not canonical project context.
 
 ## Current project routes
 
-- [Scope and next milestone](goals/project-plan.md)
+- [Start here: purpose, established progress and next milestone](goals/project-plan.md)
+- [What the QGIS/R experiment established, and its limits](features/qgis-provider-qualification.md)
+- [How this fits the wider migration](../../FG-architecture/dev/architecture/system-overview.md#open-source-migration-why-the-pieces-fit-together)
 - [R package/provider decisions](decisions/ADR-0002-r-package-processing-foundation.md)
 - [QGIS boundary and upstream compliance review](architecture/qgis-r-boundary.md)
 - [Wrapper authoring contract](schemas/rsx-wrapper-contract.md)

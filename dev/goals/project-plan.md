@@ -11,25 +11,32 @@ preparation without replacing production ArcGIS prematurely.
 
 Package and AI-assisted foundations are implemented. The first experimental
 network-review wrapper now delegates to the fluvgeo Terrain Development report.
-Its [feature record](../features/review-stream-network.md) separates direct-R
-verification from outstanding QGIS qualification.
+The actual QGIS R Provider can invoke fluvgeo and produce a report whose tables
+agree with direct R, without changing source data. The observed environment
+conflicts have been addressed. This establishes a working connection for one
+read-only tool, not complete interoperability. See the
+[qualification summary](../features/qgis-provider-qualification.md).
 
 ## Next bounded milestone
 
-Qualify **Review Stream Network GeoPackage** in an actual QGIS/R Provider
-environment. Actual QGIS 3.44.14/R Provider 4.1.0 headless execution now works,
-but exposed spatial-environment conflicts and noisy provider failure handling.
-See the [qualification record](../features/qgis-provider-qualification.md).
-The packaged R subprocess guard now implements the recognized-OSGeo4W boundary.
-The controlled local PROJ package-data repair completed on 2026-09-09; actual
-provider tests pass afterwards, and the Qt parameter dialog was tested offscreen.
-See the [repair record](../workflows/osgeo-proj-repair.md). Next complete an
-analyst-run interactive trial in an isolated QGIS 3.44 profile, including file
-selection, report opening and cancellation. Do not configure a production profile
-or alter other shared packages without reviewed scope. Missing Study
-Area context remains visible in this network-only tool.
+Complete an **analyst-run trial in an isolated QGIS 3.44 profile**: select the
+network file and a persistent report destination, run the tool, open the report,
+and check cancellation and child-process cleanup. Offscreen dialog inspection
+has passed but does not replace this interaction. Record actionable usability
+issues and failures before adding more tools. Do not configure a production
+profile or upgrade shared packages as a side effect.
 
 Success requires direct-R agreement **and** actual provider execution, useful
 inline help, explicit failures and unchanged source evidence. Package tests alone
 do not authorize promotion. Do not expand into terrain extraction, archive-wide
 migration or enterprise loading as part of that first wrapper.
+
+## How this advances the larger workflow
+
+The tool accepts only a network bundle: it cannot reopen the full Study Area,
+event inventory or terrain links from that file. Missing context remains visible.
+After the desktop trial, use its feedback and the
+[fluvgeo plan](../../../fluvgeo/dev/goals/project-plan.md) to select the next
+study-context capability. Complete folder binding, broader client qualification
+and deployment remain separate work. The accepted GeoPackage-vector/GeoTIFF-terrain
+folder design is unchanged; runtime maintenance is not an ongoing research goal.
