@@ -3,12 +3,19 @@
 Reviewed 2026-09-07. Evidence below describes upstream behavior, not a verified
 local QGIS installation. Working choices are recorded in ADR-0002.
 
+Actual local execution was subsequently tested on 2026-09-08. See the
+[qualification record](../features/qgis-provider-qualification.md): the first
+wrapper runs with its scoped R environment guard. The separate OSGeo4W PROJ data
+collision was [repaired and rechecked on 2026-09-09](../workflows/osgeo-proj-repair.md).
+Interactive desktop checks still prevent deployment qualification. The upstream
+review below is retained as context.
+
 ## Division of labor
 
 | Owner | Responsibility |
 | --- | --- |
 | North Road R Provider | QGIS registration, parameter widgets, R subprocess and output transport. |
-| fgqgis | Packaged `.rsx` adapters, inline help, boundary tests and discoverable assets. |
+| fgqgis | Packaged `.rsx` adapters, scoped R runtime guard, inline help, boundary tests and discoverable assets. |
 | fluvgeo | Scientific methods, validation, structured findings and durable reports. |
 | fluvgeodata | Retained test inputs; do not edit fixtures during tests. |
 | FGDB | Governed hierarchy, persistence and loading, not implicit wrapper-side acceptance. |
@@ -17,6 +24,10 @@ Shiny continues to call fluvgeo without requiring QGIS. Preserve the separate
 production ArcGIS path and its runtime. Study Area reporting must support new
 study configuration, durable description, and forensic archive reconstruction;
 QGIS supplies desktop interaction, not a separate report implementation.
+
+[ADR-0004](../decisions/ADR-0004-r-spatial-runtime-boundary.md) records the
+implemented R subprocess guard. It is not a change to QGIS's own spatial stack
+and does not silently override unfamiliar custom driver/grid configuration.
 
 ## Verified upstream conventions
 

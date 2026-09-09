@@ -17,11 +17,17 @@ verification from outstanding QGIS qualification.
 ## Next bounded milestone
 
 Qualify **Review Stream Network GeoPackage** in an actual QGIS/R Provider
-environment. Standard installation/profile discovery found no usable runtime on
-2026-09-08; an existing portable/custom installation remains unknown. Obtain the
-runtime location or a reviewed isolated installation before proceeding. Do not
-silently configure a production profile. Missing Study Area context remains
-visible in this network-only tool.
+environment. Actual QGIS 3.44.14/R Provider 4.1.0 headless execution now works,
+but exposed spatial-environment conflicts and noisy provider failure handling.
+See the [qualification record](../features/qgis-provider-qualification.md).
+The packaged R subprocess guard now implements the recognized-OSGeo4W boundary.
+The controlled local PROJ package-data repair completed on 2026-09-09; actual
+provider tests pass afterwards, and the Qt parameter dialog was tested offscreen.
+See the [repair record](../workflows/osgeo-proj-repair.md). Next complete an
+analyst-run interactive trial in an isolated QGIS 3.44 profile, including file
+selection, report opening and cancellation. Do not configure a production profile
+or alter other shared packages without reviewed scope. Missing Study
+Area context remains visible in this network-only tool.
 
 Success requires direct-R agreement **and** actual provider execution, useful
 inline help, explicit failures and unchanged source evidence. Package tests alone

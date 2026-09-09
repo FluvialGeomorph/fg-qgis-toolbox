@@ -3,6 +3,9 @@
 - One user-facing algorithm per `inst/rscripts/<stable_id>.rsx`.
 - Use a stable lowercase `fg_`-prefixed name, a separate human-facing display
   name and `##FluvialGeomorph=group`. Avoid renaming IDs after publication.
+  Provider 4.1.0 strips underscores when registering names: the current
+  `fg_review_stream_network` declaration becomes `r:fgreviewstreamnetwork`.
+  Verify actual IDs through the registry before documenting batch calls.
 - Declare every parameter/output through provider metadata. Prefer `INPUT` and
   `OUTPUT` for primary parameters in new tools; additional names describe roles.
 - Document each parameter/output inline with `#' KEY: text`, plus `ALG_DESC`
@@ -20,6 +23,10 @@
   belong in fluvgeo. Follow [ADR-0003](../decisions/ADR-0003-folder-deliverables-and-geotiff-terrain.md).
 - Keep the initial body ordinary R; metadata/help are comments. Provider-specific
   executable syntax such as `>` needs actual provider tests before adoption.
+- For the OSGeo4W boundary, call `fgqgis::with_qgis_spatial_environment()` before
+  loading the scientific backend and retain `dont_load_any_packages`. Do not
+  duplicate its checks in each script or blanket-clear arbitrary user paths.
+  See [ADR-0004](../decisions/ADR-0004-r-spatial-runtime-boundary.md).
 
 `tests/testthat/helper-rsx.R` checks a subset of these conventions. It is not a
 complete parser or proof of architectural compliance; review handles ownership

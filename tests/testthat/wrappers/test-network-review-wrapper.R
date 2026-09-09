@@ -4,6 +4,11 @@ test_that("network review matches the backend and preserves retained sources", {
     expect_true(requireNamespace(package, quietly = TRUE), info = package)
   }
   expect_true(rmarkdown::pandoc_available())
+  # The workspace runner preloads spatial namespaces; their startup may set
+  # GDAL_DATA. This suite tests adapter agreement with no inherited overrides.
+  # Real fresh-process isolation is tested through the QGIS provider harness.
+  withr::local_envvar(c(GDAL_DRIVER_PATH = NA, GDAL_DATA = NA,
+                       PROJ_LIB = NA, PROJ_DATA = NA))
   script <- system.file("rscripts", "fg_review_stream_network.rsx",
                         package = "fgqgis", mustWork = TRUE)
   root <- tempfile("network review ")

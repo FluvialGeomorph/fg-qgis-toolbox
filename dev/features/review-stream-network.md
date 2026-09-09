@@ -8,7 +8,8 @@ without changing the scientific or persistence ownership boundaries.
 
 `inst/rscripts/fg_review_stream_network.rsx` declares stable name
 `fg_review_stream_network`, group FluvialGeomorph, one `INPUT=file gpkg` and one
-`OUTPUT=output html`. It calls only the fluvgeo summary and report functions.
+`OUTPUT=output html`. Scientific work calls the fluvgeo summary and report
+functions inside the packaged fgqgis spatial-environment guard (since 0.0.0.9001).
 The summary reads and freshly validates the full `FLUVGEO_NETWORK_GPKG_1`
 bundle; an arbitrary single-layer GeoPackage is not accepted as that bundle.
 The report destination must be new, `.html`, and in an existing directory on
@@ -66,6 +67,11 @@ Strict reproducibleai context validation passed with the two existing
 seeded-content warnings. No installed-version compatibility matrix is implied.
 
 ## Remaining qualification gate
+
+Update: the user supplied a runtime lead and actual headless provider execution
+has now been tested. See [QGIS qualification](qgis-provider-qualification.md)
+for results, environment problems and remaining gates. The following discovery
+paragraph describes the earlier, incomplete search, not current availability.
 
 Read-only discovery found no QGIS executable on PATH, no QGIS directory under
 Program Files, Program Files (x86), LocalAppData/Programs or the drive root, no

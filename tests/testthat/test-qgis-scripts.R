@@ -19,8 +19,14 @@ test_that("the review wrapper explains a missing or incompatible backend", {
   script <- qgis_scripts()[[1]]
   for (available in c(FALSE, TRUE)) {
     expect_error(run_rsx_fixture(script, list(
-      requireNamespace = function(...) available,
-      getNamespaceExports = function(...) "an_old_api")),
+      requireNamespace = function(package, ...) package == "fgqgis" || available,
+      getNamespaceExports = function(package) if (package == "fgqgis")
+        "with_qgis_spatial_environment" else "an_old_api")),
       "compatible fluvgeo installation")
   }
+})
+
+test_that("the wrapper requires the packaged environment guard", {
+  expect_error(run_rsx_fixture(qgis_scripts()[[1]], list(
+    requireNamespace = function(...) FALSE)), "compatible fgqgis installation")
 })

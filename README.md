@@ -39,9 +39,17 @@ fluvgeo network bundle and a new HTML destination, not a generic vector layer.
 This deliberately limited network-only view does not yet reopen the full saved
 Study Area context used by the Cole Creek development demonstration.
 
-The selected integration is the North Road Processing R Provider. Direct-R
-tests exercise the actual script; actual QGIS execution remains unqualified.
-See [behavior and qualification](dev/features/review-stream-network.md).
+The selected integration is the North Road Processing R Provider. Direct-R tests
+and actual QGIS 3.44.14/Provider 4.1.0 headless execution now exercise the script.
+The R boundary and local PROJ repair are verified; remaining desktop checks
+still prevent production deployment qualification. See [behavior](dev/features/review-stream-network.md)
+and [QGIS findings](dev/features/qgis-provider-qualification.md).
+
+Version 0.0.0.9001 adds a conservative R runtime guard: recognized OSGeo4W
+resource overrides are isolated before backend loading; unfamiliar custom paths
+are refused. The guard is tested through the real provider. QGIS's stale PROJ
+package data was repaired on 2026-09-09; the real parameter dialog was also
+tested offscreen. See the [repair record](dev/workflows/osgeo-proj-repair.md).
 
 ## Package foundation
 
