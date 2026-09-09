@@ -48,8 +48,12 @@ and the source stayed unchanged. Two environment conflicts were addressed;
 they were not GeoPackage format failures or changes to the scientific methods.
 
 The cancellation candidate passed eight regression cases, the real report
-comparison and the analyst's desktop confirmation. **Next:** review how to
-maintain or contribute the provider change before production adoption. The
+comparison and the analyst's desktop confirmation. The
+[maintenance review](dev/patches/r-provider-cancellation/README.md#maintenance-review-2026-09-09)
+recommends contributing evidence upstream while retaining the isolated development
+candidate; the contribution draft is not published. **Next:** return to reopening
+saved Study Area context in the report workflow. Production adoption remains a
+separate decision. The
 official plugin and original trial profile remain unchanged. See the
 [desktop confirmation](dev/features/qgis-provider-qualification.md#desktop-cancellation-confirmation-2026-09-09).
 This is not yet a production release

@@ -31,11 +31,20 @@ See [the measured candidate results](../features/qgis-provider-qualification.md#
 The [candidate desktop check](../features/qgis-provider-qualification.md#desktop-cancellation-confirmation-2026-09-09)
 is now complete: the log confirms the candidate, the analyst reports immediate
 cancellation, and no requested HTML was left behind. No further repetition of
-this analyst test is needed. Next review the upstream/maintenance path for the
-provider change before production adoption;
+this analyst test is needed. The
+[upstream/maintenance review](../patches/r-provider-cancellation/README.md#maintenance-review-2026-09-09)
+is complete, with a local contribution draft and an upstream-first recommendation.
+Publishing that draft and adopting a maintained provider remain separate choices;
 the candidate does not change the official plugin, existing profile, R scientific
 methods or production deployment. The bounded cancellation test is closed;
 broader release/dependency qualification remains separate.
+
+Next return to the Study Area workflow: inspect the existing saved-context/folder
+interface in fluvgeo and specify the smallest read-only QGIS extension that can
+reopen that context, rather than accepting only a network GeoPackage. Reuse the
+current report and backend contract; do not create new scientific logic or
+silently infer missing hierarchy. Provider maintenance need not become another
+analyst testing loop or block this development work.
 
 Success requires direct-R agreement **and** actual provider execution, useful
 inline help, explicit failures and unchanged source evidence. Package tests alone

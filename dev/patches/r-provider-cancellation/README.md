@@ -5,6 +5,46 @@ provider, an fgqgis runtime dependency, or an installed-plugin hotfix. The user
 authorized the next cancellation development step after the analyst trial.
 Production adoption/upstream contribution remains a separate decision.
 
+## Maintenance review (2026-09-09)
+
+**Verified:** a live, read-only GitHub API review found upstream `master` at
+[`e4f83a1`](https://github.com/north-road/qgis-processing-r/commit/e4f83a13109eb9dd7989cbfd38a37ab16daa0788)
+(2024-01-15). Its `utils.py` and `algorithm.py` SHA-256 values exactly match the
+4.1.0 files pinned by our staging script. The cancellation defect therefore
+remains in the inspected source; we did not execute the full upstream checkout.
+[Issue #13](https://github.com/north-road/qgis-processing-r/issues/13) is open and
+describes failed-script outputs appearing in the results viewer. A title/body
+search for `cancel` returned no issues or PRs; this is not proof that no related
+discussion exists. Neither open PR changes the execution files:
+[#53](https://github.com/north-road/qgis-processing-r/pull/53) concerns parameter
+editing, and [#136](https://github.com/north-road/qgis-processing-r/pull/136)
+concerns QGIS 4/Qt6 migration. The inspected
+[test workflow](https://github.com/north-road/qgis-processing-r/blob/e4f83a13109eb9dd7989cbfd38a37ab16daa0788/.github/workflows/test_plugin.yaml)
+runs pytest in Linux QGIS containers; it does not establish Windows behavior.
+
+**Proposed path:** upstream-first, with a narrowly maintained local development
+candidate while normal Study Area work resumes. The
+[contribution draft](upstream-issue-draft.md) contains a data-free reproducer and
+the measured results. Review it before publishing; no issue, comment, PR, fork
+or production installation was created. Ask maintainers where this belongs and
+agree on cross-platform behavior before turning the Windows prototype into a PR.
+Maintainer acceptance, timing and the eventual supported-version target are
+**unknown**. Commit age alone is not evidence that the project is abandoned.
+
+Until a separate adoption decision, fgqgis development owns only this bounded
+candidate and its test harness, not a replacement provider. Keep it in the
+isolated profile with its distinct version; do not install it automatically with
+the R package or overlay a user's normal plugin. On any upstream change, staging
+must fail on differing source hashes rather than silently reapplying the patch.
+Review changes and repeat cancellation/exit tests plus real-report/direct-R
+agreement before qualifying a new candidate. No automatic upgrade is authorized.
+
+Retire the candidate when an official release passes those checks on the intended
+Windows/QGIS/R combination and one desktop cancellation confirmation. If upstream
+cannot accommodate a fix, bring the explicit choice of a maintained fork or an
+alternative execution boundary back for review before production deployment.
+Continued read-only workflow development does not depend on an upstream response.
+
 ## Behavior
 
 - Poll the owned R process every 50 ms independently of its console output.
