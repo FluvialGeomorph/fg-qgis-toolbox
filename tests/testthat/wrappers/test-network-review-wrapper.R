@@ -76,6 +76,50 @@ test_that("network review matches the backend and preserves retained sources", {
                  "html")
     expect_identical(tools::md5sum(input), before)
     expect_identical(tools::md5sum(sources), source_hashes)
+    # The new tool reopens supplied parent context, not a reconstructed hierarchy.
+    reach <- data.frame(reach_id = "44444444-4444-4444-8444-444444444444",
+      stream_id = streams$stream_id, reach_name = "R1")
+    events <- data.frame(survey_event_id = c("66666666-6666-4666-8666-666666666666",
+      "77777777-7777-4777-8777-777777777777", "88888888-8888-4888-8888-888888888888"),
+      reach_id = reach$reach_id, survey_year = c(2006L, 2010L, 2016L))
+    context_args <- list(study_area = data.frame(study_area_id = streams$study_area_id,
+      study_area_name = "Papillion Creek"), streams = streams, reaches = reach,
+      survey_events = events, analyst_notes = "Test-only provisional IDs; user-confirmed scope.")
+    context <- do.call(fluvgeo::write_study_context, c(context_args,
+      list(dsn = file.path(root, "study.gpkg"), network = basename(input))))
+    context_before <- tools::md5sum(context)
+    expected <- do.call(fluvgeo::terrain_development_summary, c(context_args, list(network = input)))
+    study_script <- system.file("rscripts", "fg_review_study_area.rsx", package = "fgqgis", mustWork = TRUE)
+    study_output <- file.path(root, "study review.html")
+    actual <- run_rsx_fixture(study_script, list(INPUT = context, OUTPUT = study_output))
+    for (field in c("study_area", "streams", "reaches", "surveys", "event_evidence",
+      "gaps", "assessment", "review_actions", "reconstruction"))
+      expect_equal(actual$review[[field]], expected[[field]], info = field)
+    expect_equal(nrow(actual$review$surveys), 3L)
+    expect_true(file.exists(study_output))
+    expect_error(run_rsx_fixture(study_script, list(INPUT = context, OUTPUT = study_output)), "already exists")
+    expect_error(run_rsx_fixture(study_script, list(INPUT = input, OUTPUT = file.path(root, "no.html"))), "context binding")
+    expect_false(file.exists(file.path(root, "no.html")))
+    expect_identical(tools::md5sum(context), context_before)
+    edit_script <- system.file("rscripts", "fg_revise_study_area.rsx", package = "fgqgis", mustWork = TRUE)
+    edit_path <- file.path(root, "revised-study.gpkg")
+    edit_report <- file.path(root, "revised-report.html")
+    edit <- run_rsx_fixture(edit_script, list(INPUT = context, CONTEXT = edit_path,
+      OUTPUT = edit_report, NEW_NAME = "", ADD_NOTE = "Test-only scope note: retained evidence remains provisional."))
+    expect_true(file.exists(edit$CONTEXT) && file.exists(edit$OUTPUT))
+    original_args <- fluvgeo::read_study_context(context)
+    edited_args <- fluvgeo::read_study_context(edit$CONTEXT)
+    expect_identical(edited_args$analyst_notes, paste(original_args$analyst_notes,
+      "Test-only scope note: retained evidence remains provisional.", sep = "\n\n"))
+    edited_args$analyst_notes <- original_args$analyst_notes
+    expect_equal(edited_args, original_args)
+    expect_error(run_rsx_fixture(edit_script, list(INPUT = context,
+      CONTEXT = file.path(root, "noop.gpkg"), OUTPUT = file.path(root, "noop.html"),
+      NEW_NAME = "", ADD_NOTE = "  ")), "No changes")
+    expect_false(file.exists(file.path(root, "noop.gpkg")))
+    expect_identical(tools::md5sum(context), context_before)
+    expect_identical(tools::md5sum(input), before)
+    expect_identical(tools::md5sum(sources), source_hashes)
   }
   missing_output <- file.path(root, "must-not-exist.html")
   expect_error(run_rsx_fixture(script,

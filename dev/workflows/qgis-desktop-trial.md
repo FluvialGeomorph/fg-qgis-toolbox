@@ -1,4 +1,65 @@
-# First analyst desktop trial
+# Analyst desktop trials
+
+## Current trial: saved Study Area (2026-09-10)
+
+**Completed:** the analyst reported successful execution with no confusion;
+returned report tables, Processing history and input hashes were verified. No
+further run is requested. Instructions below are retained for reproducibility.
+
+This was the saved-context analyst task. Earlier network/cancellation instructions
+below are historical; **do not repeat those tests**. The new tool restores saved
+study context and creates the same report. It does not edit the study or approve
+its data.
+
+Save any work and close other QGIS windows. From fg-qgis-toolbox, launch:
+
+```powershell
+.\dev\scripts\start-qgis-trial.ps1 -TrialDirectory .\dev\check-output\desktop-trial-study-v1
+```
+
+Use this launcher, not an existing QGIS window: changing the input folder does
+not switch the profile or its R library. This isolated profile uses the tested
+development provider `4.1.0-fg-cancel1` and fgqgis 0.0.0.9002. Normal profiles and
+production libraries are unchanged.
+
+The session is a separate QGIS **desktop window**, not a Codex/browser tab. Find
+it on the taskbar or with Alt+Tab. If a process exists only in Task Manager, stop
+the trial and tell the developer; do not start a second copy or use your normal
+shortcut. Process creation alone does not prove an interactive window opened.
+The first restricted agent launch showed this failure; an unrestricted launch
+of the same profile produced a main window. A launcher run from your own desktop
+PowerShell is the manual alternative, after the developer has cleared only the
+identified windowless trial process.
+
+1. In **Processing → Toolbox**, search **Review Saved Study Area** and open the
+   experimental FluvialGeomorph tool. Do not choose Review Stream Network.
+2. For INPUT, choose `Cole Créek inputs/cole-creek-study.gpkg` inside
+   `dev/check-output/desktop-trial-study-v1/`. This is the **context** file, not
+   `cole-creek-network-draft.gpkg`. Keep the other files in that folder in place.
+3. For OUTPUT, choose a new `analyst report.html` directly inside
+   `desktop-trial-study-v1/`, then run once and open the resulting HTML.
+4. Confirm the report describes **Papillion Creek → Cole Creek → R1**, with
+   **2006, 2010 and 2016** Survey Events and their selected terrain grids. Missing
+   Study Area AOI, unknown vertical references and provisional identities should
+   still be explicit. No map layer is automatically added to QGIS.
+
+Save the Processing log as `study-review-log.txt` in the trial folder. Tell us
+whether choosing the context file and finding the restored scope was clear, and
+whether the report explains what is known and what needs attention. If anything
+fails, retain the error and stop; do not reinstall packages or replace files.
+**No Cancel test, repeat run or developer preparation is required from you.**
+
+Developer preparation uses `qualify-qgis-provider.py --study-context
+--prepare-desktop-trial` with a new output root. It reruns the existing success,
+failure, source-integrity and 19-table direct-R comparison in the actual new
+profile before publishing its launch manifest. Schema 2 identifies the exact
+tool/script and inventories every copied input file. The launcher still accepts
+the historical schema-1 network trials. It is not a portable installer or a
+complete lock of all R/QGIS dependencies.
+
+Use `test-study-trial-launcher.ps1 -TrialDirectory <new-trial>` to check preflight
+and refusal behavior without opening QGIS or altering the saved manifest. Returned
+analyst evidence belongs in [the existing feature record](../features/review-study-area.md).
 
 ## Purpose
 

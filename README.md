@@ -2,8 +2,8 @@
 
 A QGIS toolbox for FluvialGeomorph's developing open-source workflow.
 
-Status: first experimental report wrapper implemented; no QGIS algorithms
-deployed and no installation procedure qualified yet.
+Status: experimental network/report and bounded Study Area editing wrappers
+implemented; no production deployment or qualified installation procedure yet.
 
 ## Purpose
 
@@ -39,6 +39,24 @@ fluvgeo network bundle and a new HTML destination, not a generic vector layer.
 This deliberately limited network-only view does not yet reopen the full saved
 Study Area context used by the Cole Creek development demonstration.
 
+**Review Saved Study Area** now opens a separate context GeoPackage containing
+the supplied hierarchy, event inventory, notes and links to the network and terrain
+manifest. It regenerates the same report without rerunning the demonstration's
+setup script. Keep the whole linked folder together; missing evidence remains
+visible. See [the tool contract](dev/features/review-study-area.md).
+
+The Cole Creek desktop trial is complete: the analyst found the workflow clear,
+the 19 report tables matched direct R, and source hashes were unchanged. This
+qualifies the bounded trial, not a production installation.
+
+**Revise Study Area Details** adds the first small editing step: change a supplied
+Study Area's display name and/or append a scope note, save a new context beside
+the original and refresh the report. Blank fields keep current values. This does
+not edit hierarchy identities, geometry or terrain selections. Free-text transport
+requires the development provider correction described in
+[the editing record](dev/features/review-study-area.md#bounded-editing-step-2026-09-10);
+the new form is not yet analyst-qualified or deployed.
+
 ## What the first test tells us
 
 The question was whether QGIS can be the desktop interface to our existing R
@@ -51,8 +69,8 @@ The cancellation candidate passed eight regression cases, the real report
 comparison and the analyst's desktop confirmation. The
 [maintenance review](dev/patches/r-provider-cancellation/README.md#maintenance-review-2026-09-09)
 recommends contributing evidence upstream while retaining the isolated development
-candidate; the contribution draft is not published. **Next:** return to reopening
-saved Study Area context in the report workflow. Production adoption remains a
+candidate; the contribution draft is not published. Saved Study Area reopening is
+the new bounded capability described above. Production adoption remains a
 separate decision. The
 official plugin and original trial profile remain unchanged. See the
 [desktop confirmation](dev/features/qgis-provider-qualification.md#desktop-cancellation-confirmation-2026-09-09).
@@ -71,7 +89,7 @@ inline help and delegates scientific work to fluvgeo. This is not a new Python
 plugin. The [working architecture decision](dev/decisions/ADR-0002-r-package-processing-foundation.md)
 records the package, provider and testing choices.
 
-- `inst/rscripts/`: one experimental wrapper, not approved for deployment.
+- `inst/rscripts/`: three experimental wrappers, not approved for deployment.
 - `R/` and `man/`: documented package support; `qgis_scripts()` locates assets
   without installing or configuring anything.
 - `tests/testthat/`: fast package tests and a separate testthis wrapper suite

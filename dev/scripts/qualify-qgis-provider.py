@@ -25,7 +25,15 @@ p.add_argument("--inspect-dialog-only", action="store_true",
                help="Inspect/render the real Qt parameter dialog offscreen, without running R")
 p.add_argument("--prepare-desktop-trial", action="store_true",
                help="Stage the tested provider in a new isolated desktop-compatible profile")
+p.add_argument("--study-context", action="store_true",
+               help="Test the saved Study Area tool, relocating the complete input folder")
+p.add_argument("--revise-context", action="store_true",
+               help="Test name/note editing and new-file reporting on a copied context folder")
 a = p.parse_args()
+if a.revise_context:
+    a.study_context = True
+    if a.prepare_desktop_trial:
+        p.error("The editing form has no prepared analyst trial yet")
 if a.prepare_desktop_trial and (a.inspect_dialog_only or a.isolate_r_spatial_env):
     p.error("Desktop preparation requires the complete packaged-guard qualification")
 root = a.output_root.resolve()
@@ -106,7 +114,9 @@ print("R Provider constructed", flush=True)
 QgsApplication.processingRegistry().addProvider(provider)
 print("R Provider registered", flush=True)
 scripts = a.r_library.resolve() / "fgqgis/rscripts"
-source_script = Path(__file__).resolve().parents[2] / "inst/rscripts/fg_review_stream_network.rsx"
+source_script = Path(__file__).resolve().parents[2] / "inst/rscripts" / (
+    "fg_revise_study_area.rsx" if a.revise_context else
+    "fg_review_study_area.rsx" if a.study_context else "fg_review_stream_network.rsx")
 installed_script = scripts / source_script.name
 assert installed_script.read_bytes() == source_script.read_bytes(), "Install the current fgqgis into the test library first"
 for key, value in ((RUtils.RSCRIPTS_FOLDER, str(scripts)),
@@ -117,7 +127,9 @@ for key, value in ((RUtils.RSCRIPTS_FOLDER, str(scripts)),
 provider.refreshAlgorithms()
 print("Script folders: " + str(RUtils.script_folders()), flush=True)
 print("Algorithms: " + str([x.id() for x in provider.algorithms()]), flush=True)
-algorithm = QgsApplication.processingRegistry().algorithmById("r:fgreviewstreamnetwork")
+algorithm = QgsApplication.processingRegistry().algorithmById(
+    "r:fgrevisestudyarea" if a.revise_context else
+    "r:fgreviewstudyarea" if a.study_context else "r:fgreviewstreamnetwork")
 assert algorithm is not None, "Wrapper was not registered"
 record = {"qgis": Qgis.QGIS_VERSION, "provider": plugin_version(),
           "proj_metadata": proj_metadata, "crs_roundtrip_error_degrees": roundtrip_error,
@@ -135,7 +147,10 @@ if a.isolate_r_spatial_env:
 (root / "help.html").write_text(algorithm.shortHelpString(), encoding="utf-8")
 assert not algorithm.error, algorithm.error
 assert record["help_present"]
-assert record["parameters"] == ["INPUT", "OUTPUT"]
+assert record["parameters"] == (["INPUT", "NEW_NAME", "ADD_NOTE", "CONTEXT", "OUTPUT"]
+                                if a.revise_context else ["INPUT", "OUTPUT"])
+if a.revise_context:
+    assert algorithm.parameterDefinition("ADD_NOTE").multiLine()
 
 class Feedback(QgsProcessingFeedback):
     def __init__(self):
@@ -161,10 +176,28 @@ def digest(path):
 
 source_hash = digest(a.input)
 inputs = root / "Cole Cr\u00e9ek inputs"
-inputs.mkdir()
-copied = inputs / "network draft.gpkg"
-shutil.copy2(a.input, copied)
-output = root / "network review.html"
+source_files = [a.input]
+if a.study_context:
+    assert not root.is_relative_to(a.input.resolve().parent), "Output must be outside the source folder"
+    source_files = sorted(f for f in a.input.parent.rglob("*") if f.is_file())
+source_hashes = {str(f): digest(f) for f in source_files}
+if a.study_context:
+    shutil.copytree(a.input.parent, inputs)
+    copied = inputs / a.input.name
+else:
+    inputs.mkdir()
+    copied = inputs / "network draft.gpkg"
+    shutil.copy2(a.input, copied)
+copy_hashes = {str(f): digest(f) for f in inputs.rglob("*") if f.is_file()}
+for source, expected in source_hashes.items():
+    copy = inputs / Path(source).relative_to(a.input.parent) if a.study_context else copied
+    assert digest(copy) == expected, "Relocated copy differs from the source snapshot"
+output = root / ("study review.html" if a.study_context else "network review.html")
+revision = inputs / "study revised.gpkg"
+edit_values = {"NEW_NAME": 'Papillion Creek — review "draft"',
+               "ADD_NOTE": 'Analyst\'s qualification test — not acceptance.\nReference: C:\\terrain\\new; "Cole Creek".'}
+if a.revise_context:
+    (root / "edit-values.json").write_text(json.dumps(edit_values), encoding="utf-8")
 
 if a.inspect_dialog_only:
     # Qt's offscreen platform does not discover Windows fonts automatically.
@@ -175,13 +208,17 @@ if a.inspect_dialog_only:
     app.setFont(QFont(QFontDatabase.applicationFontFamilies(font_id)[0], 10))
     from processing.gui.AlgorithmDialog import AlgorithmDialog
     dialog = AlgorithmDialog(algorithm.create())
-    dialog.setParameters({"INPUT": str(copied), "OUTPUT": str(output)})
+    dialog.setParameters({"INPUT": str(copied), "OUTPUT": str(output)} |
+                         ({"CONTEXT": str(revision)} | edit_values if a.revise_context else {}))
     dialog.resize(1100, 750)
     dialog.show()
     app.processEvents()
     params = dialog.createProcessingParameters()
     assert Path(params["INPUT"]).resolve() == copied
     assert Path(params["OUTPUT"]).resolve() == output
+    if a.revise_context:
+        assert Path(params["CONTEXT"]).resolve() == revision
+        assert all(params[k] == v for k, v in edit_values.items())
     assert dialog.grab().save(str(root / "parameter-dialog.png"))
     record["dialog_parameters_roundtrip"] = True
     record["source_unchanged"] = digest(a.input) == source_hash
@@ -190,11 +227,14 @@ if a.inspect_dialog_only:
     print("Dialog parameter round-trip and offscreen rendering passed", flush=True)
     sys.exit(0)
 
-def run_case(name, source, destination):
+def run_case(name, source, destination, overrides=None):
     feedback = Feedback()
     context = QgsProcessingContext()
     alg = algorithm.createInstance()
     params = {"INPUT": str(source), "OUTPUT": str(destination)}
+    if a.revise_context:
+        params.update({"CONTEXT": str(revision)} | edit_values)
+    params.update(overrides or {})
     before = digest(destination) if Path(destination).is_file() else None
     result, ok, error = None, None, None
     try:
@@ -211,10 +251,22 @@ def run_case(name, source, destination):
     (root / "results.json").write_text(json.dumps(record, indent=2), encoding="utf-8")
 
 run_case("valid-unicode", copied, output)
+revision_hash = digest(revision) if a.revise_context and revision.is_file() else None
 run_case("overwrite", copied, output)
-run_case("missing-input", inputs / "absent.gpkg", root / "must-not-exist.html")
-record["source_unchanged"] = digest(a.input) == source_hash
-record["copy_unchanged"] = digest(copied) == source_hash
+run_case("missing-input", inputs / "absent.gpkg", root / "must-not-exist.html",
+         {"CONTEXT": str(inputs / "missing-result.gpkg")} if a.revise_context else None)
+if a.revise_context:
+    run_case("blank-noop", copied, root / "noop.html", {"NEW_NAME": "", "ADD_NOTE": "   ",
+             "CONTEXT": str(inputs / "noop.gpkg")})
+    run_case("report-collision", copied, output, {"CONTEXT": str(inputs / "collision.gpkg")})
+    assert record["cases"][3]["ok"] is False and not (inputs / "noop.gpkg").exists()
+    assert not record["cases"][3]["output_exists"] and not (inputs / "missing-result.gpkg").exists()
+    assert record["cases"][4]["ok"] is False and not (inputs / "collision.gpkg").exists()
+    assert record["cases"][4]["existing_output_unchanged"]
+    assert revision_hash is not None and digest(revision) == revision_hash
+    record["revised_context_preserved_on_failures"] = True
+record["source_unchanged"] = all(digest(f) == h for f, h in source_hashes.items())
+record["copy_unchanged"] = all(digest(f) == h for f, h in copy_hashes.items())
 (root / "results.json").write_text(json.dumps(record, indent=2), encoding="utf-8")
 assert record["source_unchanged"] and record["copy_unchanged"]
 # Keep failures as evidence, rather than equating an output path with success.
@@ -227,14 +279,16 @@ assert record["cases"][2]["ok"] is False and not record["cases"][2]["output_exis
 with (root / "direct-evidence.log").open("w", encoding="utf-8") as log:
     subprocess.run([str(a.r_home / "bin/Rscript.exe"), "--vanilla",
                     str(Path(__file__).with_name("qgis-direct-evidence.R")),
-                    str(a.r_library.resolve()), str(copied), str(root)],
+                    str(a.r_library.resolve()), str(revision if a.revise_context else copied), str(root)] +
+                   (["revise-context", str(copied)] if a.revise_context else
+                    ["study-context"] if a.study_context else []),
                    stdout=log, stderr=subprocess.STDOUT, check=True)
 
 if a.prepare_desktop_trial:
     # Publish the launch manifest only after all real-provider checks pass.
     settings.sync()
     trial = {
-        "schema_version": 1,
+        "schema_version": 2 if a.study_context else 1,
         "status": "prepared-not-analyst-qualified",
         "root": str(root), "osgeo": str(a.osgeo.resolve()),
         "profiles_path": str(root / "profile"), "profile_name": "default",
@@ -248,5 +302,11 @@ if a.prepare_desktop_trial:
                          for f in sorted((plugin_parent / "processing_r").rglob("*"))
                          if f.is_file() and "__pycache__" not in f.parts and f.suffix != ".pyc"},
     }
+    if a.study_context:
+        trial.update({
+            "algorithm": algorithm.id(),
+            "script_name": source_script.name,
+            "input_files": {str(Path(f).relative_to(root)): h for f, h in copy_hashes.items()},
+        })
     (root / "trial.json").write_text(json.dumps(trial, indent=2), encoding="utf-8")
     print("Desktop trial prepared; analyst interaction remains untested", flush=True)

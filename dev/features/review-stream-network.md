@@ -73,11 +73,14 @@ Report agreement, source preservation, missing-input/overwrite refusal and the
 scoped R guard have been verified. The separate QGIS installation conflict was
 repaired; its real parameter dialog was inspected offscreen.
 
-The next step is an analyst-run isolated desktop trial, not another runtime
-search. See [the qualification summary](qgis-provider-qualification.md) for
+The analyst trial and bounded cancellation follow-up are now complete. See
+[the qualification summary](qgis-provider-qualification.md) for
 current evidence and outstanding interaction, cancellation, dependency and
 release checks. The [boundary checklist](../architecture/qgis-r-boundary.md)
 remains the broader coverage reference, not a claim that every item is complete.
+
+The separate [saved Study Area tool](review-study-area.md) adds an explicit context
+entry point; this network-only contract and its missing-context behavior stay unchanged.
 
 The experimental package keeps fluvgeo in Suggests with an explicit runtime API
 guard. This is **not** the release dependency contract: before deployment, qualify

@@ -5,6 +5,10 @@
   name and `##FluvialGeomorph=group`. Avoid renaming IDs after publication.
   Provider 4.1.0 strips underscores when registering names: the current
   `fg_review_stream_network` declaration becomes `r:fgreviewstreamnetwork`.
+  The saved-context tool is registered as `r:fgreviewstudyarea`.
+  The bounded editor is `r:fgrevisestudyarea`; its parameters are `INPUT`,
+  `NEW_NAME`, `ADD_NOTE`, `CONTEXT` and `OUTPUT`. Optional multiline strings use
+  `optional string long` in the qualified QGIS parser, not `longstring`.
   Verify actual IDs through the registry before documenting batch calls.
 - Declare every parameter/output through provider metadata. Prefer `INPUT` and
   `OUTPUT` for primary parameters in new tools; additional names describe roles.
@@ -18,6 +22,11 @@
 - Write only declared, user-selected or test-owned outputs. Preserve archives;
   fail visibly on invalid inputs and unsafe destinations. No blanket error
   suppression, silent reprojection, or implied FGDB readiness from file creation.
+- Free-text adapters need exact transport checks, including literal backslashes,
+  quotes, Unicode and newlines. The 4.1.0 scalar-string serializer can silently
+  reinterpret backslashes as R escapes; sourcing `.rsx` in R cannot expose that
+  defect. Use the qualified development text correction for the new editor;
+  see [the evidence and boundary](../features/review-study-area.md#bounded-editing-step-2026-09-10).
 - Treat a Reach–Survey–Event folder as a linked delivery, not a single GeoPackage.
   Terrain payloads are external GeoTIFFs; metadata resolution and validation
   belong in fluvgeo. Follow [ADR-0003](../decisions/ADR-0003-folder-deliverables-and-geotiff-terrain.md).

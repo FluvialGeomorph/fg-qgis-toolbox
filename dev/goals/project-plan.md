@@ -39,12 +39,27 @@ the candidate does not change the official plugin, existing profile, R scientifi
 methods or production deployment. The bounded cancellation test is closed;
 broader release/dependency qualification remains separate.
 
-Next return to the Study Area workflow: inspect the existing saved-context/folder
-interface in fluvgeo and specify the smallest read-only QGIS extension that can
-reopen that context, rather than accepting only a network GeoPackage. Reuse the
-current report and backend contract; do not create new scientific logic or
-silently infer missing hierarchy. Provider maintenance need not become another
-analyst testing loop or block this development work.
+The next slice is implemented: [Review Saved Study Area](../features/review-study-area.md)
+reopens supplied hierarchy, event inventory, notes and pinned local evidence links
+through fluvgeo's new context GeoPackage. It reuses the existing report and
+validation, not another scientific implementation. The Cole Creek folder demo
+now saves this context and renders from the reopened records.
+
+The saved-context desktop trial is complete: the analyst reports everything ran
+as expected with no confusion. Processing history confirms success, all 19 report
+tables match direct R apart from validation time, and copied input hashes are
+unchanged. See [the closure](../features/review-study-area.md#analyst-return-and-closure-2026-09-10).
+No further runtime or cancellation repetition is needed for this bounded slice.
+
+The [first bounded editor](../features/review-study-area.md#bounded-editing-step-2026-09-10)
+now changes an existing Study Area display name and/or appends a scope note, saving
+a new same-folder context and refreshed report through fluvgeo. It preserves all
+other records and linked evidence. Free-text entry exposed a provider escaping
+defect; a separate development text correction is part of this qualification, not
+an update to the analyst's installed profile. Next qualify this small editing form
+with the analyst before expanding into hierarchy/AOI/event configuration. No
+automatic identity reconciliation, in-place overwrite or enterprise loading is
+implied. Production dependency/provider promotion remains separate.
 
 Success requires direct-R agreement **and** actual provider execution, useful
 inline help, explicit failures and unchanged source evidence. Package tests alone
@@ -53,8 +68,9 @@ migration or enterprise loading as part of that first wrapper.
 
 ## How this advances the larger workflow
 
-The tool accepts only a network bundle: it cannot reopen the full Study Area,
-event inventory or terrain links from that file. Missing context remains visible.
+The original tool still accepts only a network bundle. The new context entry point
+reopens explicitly saved parent records and terrain links; it does not infer these
+from a network. Missing context remains visible.
 Use the returned desktop trial's feedback and the
 [fluvgeo plan](../../../fluvgeo/dev/goals/project-plan.md) to select the next
 study-context capability. Complete folder binding, broader client qualification

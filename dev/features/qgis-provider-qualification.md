@@ -31,8 +31,10 @@ asked a different question and supports the accepted GeoPackage-vector/GeoTIFF-t
 folder design. This test neither reopens that decision nor establishes general
 geometry, raster or CRS round-trip equivalence.
 
-**Next action:** review the provider-maintenance/upstream path before production
-adoption. The isolated candidate now has both regression evidence and a successful
+The [provider-maintenance review](../patches/r-provider-cancellation/README.md#maintenance-review-2026-09-09)
+is complete; publication and production adoption remain separate decisions.
+Current development has moved to [saved Study Area review](review-study-area.md).
+The isolated candidate has both regression evidence and a successful
 [desktop cancellation confirmation](#desktop-cancellation-confirmation-2026-09-09);
 it is not a production plugin update.
 See the [project plan](../goals/project-plan.md). Technical details follow for developers;
