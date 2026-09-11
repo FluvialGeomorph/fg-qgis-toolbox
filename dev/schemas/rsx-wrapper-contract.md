@@ -10,6 +10,19 @@
   `NEW_NAME`, `ADD_NOTE`, `CONTEXT` and `OUTPUT`. Optional multiline strings use
   `optional string long` in the qualified QGIS parser, not `longstring`.
   Verify actual IDs through the registry before documenting batch calls.
+- The developing saved-context reviewer/editor adds `REPORT_VIEW`: enum values
+  0 Terrain Development, 1 Define Study Area, 2 Staging Report. Use the explicit
+  trailing default in `enum Terrain Development;Define Study Area;Staging Report 0`.
+  QGIS's own `asScriptCode()` emits this form; without that default the observed
+  parser consumed the final word of the last multiword option. Assert full option
+  labels and default in actual-provider checks. The provider's [enum syntax](https://north-road.github.io/qgis-processing-r/script-syntax/#enum)
+  documents zero-based numeric transport. This selection is not a saved schema
+  field or acceptance action; no neutral Study Area view is implied.
+- The new `fg_start_study_area` declaration accepts `STUDY_NAME`, optional
+  multiline `SCOPE_NOTES`, `CONTEXT` and `OUTPUT`. It has no source-input file;
+  a new-study draft needs no acquired data. Actual registry ID `r:fgstartstudyarea`
+  and the four-parameter form passed qualification on 2026-09-11, separately from
+  wrapper-body tests; analyst usability remains a separate trial.
 - Declare every parameter/output through provider metadata. Prefer `INPUT` and
   `OUTPUT` for primary parameters in new tools; additional names describe roles.
 - Document each parameter/output inline with `#' KEY: text`, plus `ALG_DESC`

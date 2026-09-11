@@ -5,14 +5,16 @@
 ##INPUT=file gpkg
 ##NEW_NAME=optional string
 ##ADD_NOTE=optional string long
+##REPORT_VIEW=enum Terrain Development;Define Study Area;Staging Report 0
 ##CONTEXT=output file gpkg
 ##OUTPUT=output html
 
-#' ALG_DESC: Save an intentional Study Area name change or appended scope note in a new context GeoPackage, then regenerate the Terrain Development report. Review the current report first. This is a small editor, not a full Study Area configuration form.
+#' ALG_DESC: Save an intentional Study Area name change or appended scope note in a new context GeoPackage, then render the selected report view. Choose Define Study Area to continue a new draft. Review the current report first. This is a small editor, not a full Study Area configuration form.
 #' : Blank fields keep current values. Notes are appended, never replaced; the dialog does not automatically prefill saved text. At least one change is required. Identities, AOIs, Streams, Reaches, Survey Events, terrain selections and forensic decisions remain unchanged. No acceptance, reprojection, source repair or FGDB loading occurs.
 #' : Requires compatible fgqgis spatial-environment isolation, fluvgeo revise_study_context, and Pandoc. No packages are installed or profiles changed. Keep the context beside its source and retain all linked files. The two outputs are not a transaction: a failure or cancellation after saving may leave the new context. Inspect it and use Review Saved Study Area to retry reporting; do not overwrite it or assume a canceled output was accepted.
 #' : Development profile only: free-text transport requires the qualified 4.1.0-fg-text1 provider correction. The older 4.1.0/fg-cancel1 serializer can alter literal backslashes in notes. Do not deploy this editor with that serializer.
-#' ALG_VERSION: 0.0.0.9003
+#' ALG_VERSION: 0.0.0.9005
+#' REPORT_VIEW: Terrain Development (compatible default), Define Study Area, or Staging Report. This changes presentation only, not saved project type. Use Review Saved Study Area for report-only changes; an edit still requires a new name or appended note. Staging renders saved context, not a fresh unsaved archive inspection.
 #' INPUT: Existing FLUVGEO_STUDY_CONTEXT_1 GeoPackage with unchanged linked network/manifest. The source and existing notes are preserved. Missing terrain remains visible in the report.
 #' NEW_NAME: Optional new display name for the existing Study Area; blank keeps its name. This cannot create a missing Study Area or change its identity or AOI.
 #' ADD_NOTE: Optional scope note to append as a new paragraph. Blank keeps existing notes. Include the reason or attribution when useful; this text is not an approval signature.
@@ -25,13 +27,17 @@ if (!requireNamespace("fgqgis", quietly = TRUE) ||
 }
 fgqgis::with_qgis_spatial_environment({
   if (!requireNamespace("fluvgeo", quietly = TRUE) ||
-      !"revise_study_context" %in% getNamespaceExports("fluvgeo")) {
+      !all(c("revise_study_context", "study_context_report") %in% getNamespaceExports("fluvgeo"))) {
     stop("A compatible fluvgeo installation with Study Area revision is required; no packages were installed.", call. = FALSE)
   }
   optional_text <- function(x) if (is.null(x) || identical(x, "") ||
     (is.character(x) && length(x) == 1L && !is.na(x) && !nzchar(trimws(x)))) NULL else x
+  view <- if (exists("REPORT_VIEW", inherits = FALSE)) REPORT_VIEW else 0L
+  if (!is.numeric(view) || length(view) != 1L || is.na(view) || !view %in% 0:2)
+    stop("REPORT_VIEW must select an available report view.", call. = FALSE)
   revised <- fluvgeo::revise_study_context(INPUT, CONTEXT,
-    study_area_name = optional_text(NEW_NAME), add_note = optional_text(ADD_NOTE), report_file = OUTPUT)
+    study_area_name = optional_text(NEW_NAME), add_note = optional_text(ADD_NOTE), report_file = OUTPUT,
+    report_purpose = c("terrain", "definition", "staging")[[view + 1L]])
   CONTEXT <- revised$context
   OUTPUT <- revised$report
 })

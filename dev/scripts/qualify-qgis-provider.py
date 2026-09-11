@@ -17,8 +17,12 @@ import subprocess
 import sys
 
 p = argparse.ArgumentParser(description=__doc__)
-for name in ("osgeo", "plugin-parent", "r-home", "r-library", "input", "output-root"):
+for name in ("osgeo", "plugin-parent", "r-home", "r-library", "output-root"):
     p.add_argument("--" + name, required=True, type=Path)
+p.add_argument("--input", type=Path, help="Required for existing-data tools; absent for a new study")
+p.add_argument("--start-context", action="store_true", help="Qualify a new-study draft without input data")
+p.add_argument("--report-view", type=int, choices=(0, 1, 2), default=0,
+               help="Saved-context report selection: terrain=0, definition=1, staging=2")
 p.add_argument("--isolate-r-spatial-env", action="store_true",
                help="Test R without inherited OSGeo GDAL/PROJ overrides; changes this process only")
 p.add_argument("--inspect-dialog-only", action="store_true",
@@ -30,10 +34,16 @@ p.add_argument("--study-context", action="store_true",
 p.add_argument("--revise-context", action="store_true",
                help="Test name/note editing and new-file reporting on a copied context folder")
 a = p.parse_args()
+if a.start_context and (a.input or a.study_context or a.revise_context):
+    p.error("New-study qualification has no source input or existing-context mode")
+if a.start_context and a.isolate_r_spatial_env:
+    p.error("New-study qualification exercises the packaged spatial guard")
+if not a.start_context and a.input is None:
+    p.error("Existing-data qualification requires --input")
 if a.revise_context:
     a.study_context = True
-    if a.prepare_desktop_trial:
-        p.error("The editing form has no prepared analyst trial yet")
+if a.report_view and not a.study_context:
+    p.error("Report selection applies only to saved-context review/edit tools")
 if a.prepare_desktop_trial and (a.inspect_dialog_only or a.isolate_r_spatial_env):
     p.error("Desktop preparation requires the complete packaged-guard qualification")
 root = a.output_root.resolve()
@@ -115,6 +125,7 @@ QgsApplication.processingRegistry().addProvider(provider)
 print("R Provider registered", flush=True)
 scripts = a.r_library.resolve() / "fgqgis/rscripts"
 source_script = Path(__file__).resolve().parents[2] / "inst/rscripts" / (
+    "fg_start_study_area.rsx" if a.start_context else
     "fg_revise_study_area.rsx" if a.revise_context else
     "fg_review_study_area.rsx" if a.study_context else "fg_review_stream_network.rsx")
 installed_script = scripts / source_script.name
@@ -128,6 +139,7 @@ provider.refreshAlgorithms()
 print("Script folders: " + str(RUtils.script_folders()), flush=True)
 print("Algorithms: " + str([x.id() for x in provider.algorithms()]), flush=True)
 algorithm = QgsApplication.processingRegistry().algorithmById(
+    "r:fgstartstudyarea" if a.start_context else
     "r:fgrevisestudyarea" if a.revise_context else
     "r:fgreviewstudyarea" if a.study_context else "r:fgreviewstreamnetwork")
 assert algorithm is not None, "Wrapper was not registered"
@@ -139,6 +151,8 @@ record = {"qgis": Qgis.QGIS_VERSION, "provider": plugin_version(),
           "parameters": [x.name() for x in algorithm.parameterDefinitions()],
           "cases": []}
 record["removed_r_environment_keys"] = []
+if a.start_context or (a.prepare_desktop_trial and a.revise_context):
+    assert record["provider"] == "4.1.0-fg-text1", "Editing trial requires the qualified text-transport candidate"
 if a.isolate_r_spatial_env:
     for key in ("GDAL_DRIVER_PATH", "GDAL_DATA", "PROJ_LIB", "PROJ_DATA"):
         if key in os.environ:
@@ -147,8 +161,15 @@ if a.isolate_r_spatial_env:
 (root / "help.html").write_text(algorithm.shortHelpString(), encoding="utf-8")
 assert not algorithm.error, algorithm.error
 assert record["help_present"]
-assert record["parameters"] == (["INPUT", "NEW_NAME", "ADD_NOTE", "CONTEXT", "OUTPUT"]
-                                if a.revise_context else ["INPUT", "OUTPUT"])
+assert record["parameters"] == (["STUDY_NAME", "SCOPE_NOTES", "CONTEXT", "OUTPUT"] if a.start_context else
+                                ["INPUT", "NEW_NAME", "ADD_NOTE", "REPORT_VIEW", "CONTEXT", "OUTPUT"]
+                                if a.revise_context else ["INPUT", "REPORT_VIEW", "OUTPUT"]
+                                if a.study_context else ["INPUT", "OUTPUT"])
+if a.study_context:
+    record["report_view_options"] = algorithm.parameterDefinition("REPORT_VIEW").options()
+    assert record["report_view_options"] == ["Terrain Development", "Define Study Area", "Staging Report"], repr(record["report_view_options"])
+    assert int(algorithm.parameterDefinition("REPORT_VIEW").defaultValue()) == 0
+    record["report_view"] = a.report_view
 if a.revise_context:
     assert algorithm.parameterDefinition("ADD_NOTE").multiLine()
 
@@ -173,6 +194,12 @@ class Feedback(QgsProcessingFeedback):
 
 def digest(path):
     return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+
+if a.start_context:
+    from qualify_study_start import qualify
+    qualify(a, root, app, algorithm, record, Feedback, digest, plugin_parent,
+            installed_script, settings if a.prepare_desktop_trial else None)
+    sys.exit(0)
 
 source_hash = digest(a.input)
 inputs = root / "Cole Cr\u00e9ek inputs"
@@ -209,6 +236,7 @@ if a.inspect_dialog_only:
     from processing.gui.AlgorithmDialog import AlgorithmDialog
     dialog = AlgorithmDialog(algorithm.create())
     dialog.setParameters({"INPUT": str(copied), "OUTPUT": str(output)} |
+                         ({"REPORT_VIEW": a.report_view} if a.study_context else {}) |
                          ({"CONTEXT": str(revision)} | edit_values if a.revise_context else {}))
     dialog.resize(1100, 750)
     dialog.show()
@@ -219,6 +247,12 @@ if a.inspect_dialog_only:
     if a.revise_context:
         assert Path(params["CONTEXT"]).resolve() == revision
         assert all(params[k] == v for k, v in edit_values.items())
+    if a.study_context:
+        assert params["REPORT_VIEW"] == a.report_view
+        for view in (0, 1, 2):
+            dialog.setParameters(params | {"REPORT_VIEW": view})
+            assert dialog.createProcessingParameters()["REPORT_VIEW"] == view
+        dialog.setParameters(params)
     assert dialog.grab().save(str(root / "parameter-dialog.png"))
     record["dialog_parameters_roundtrip"] = True
     record["source_unchanged"] = digest(a.input) == source_hash
@@ -232,6 +266,8 @@ def run_case(name, source, destination, overrides=None):
     context = QgsProcessingContext()
     alg = algorithm.createInstance()
     params = {"INPUT": str(source), "OUTPUT": str(destination)}
+    if a.study_context:
+        params["REPORT_VIEW"] = a.report_view
     if a.revise_context:
         params.update({"CONTEXT": str(revision)} | edit_values)
     params.update(overrides or {})
@@ -280,15 +316,15 @@ with (root / "direct-evidence.log").open("w", encoding="utf-8") as log:
     subprocess.run([str(a.r_home / "bin/Rscript.exe"), "--vanilla",
                     str(Path(__file__).with_name("qgis-direct-evidence.R")),
                     str(a.r_library.resolve()), str(revision if a.revise_context else copied), str(root)] +
-                   (["revise-context", str(copied)] if a.revise_context else
-                    ["study-context"] if a.study_context else []),
+                    (["revise-context", str(copied), ("terrain", "definition", "staging")[a.report_view]] if a.revise_context else
+                    ["study-context", ("terrain", "definition", "staging")[a.report_view]] if a.study_context else []),
                    stdout=log, stderr=subprocess.STDOUT, check=True)
 
 if a.prepare_desktop_trial:
     # Publish the launch manifest only after all real-provider checks pass.
     settings.sync()
     trial = {
-        "schema_version": 2 if a.study_context else 1,
+        "schema_version": 3 if a.revise_context else 2 if a.study_context else 1,
         "status": "prepared-not-analyst-qualified",
         "root": str(root), "osgeo": str(a.osgeo.resolve()),
         "profiles_path": str(root / "profile"), "profile_name": "default",
@@ -308,5 +344,7 @@ if a.prepare_desktop_trial:
             "script_name": source_script.name,
             "input_files": {str(Path(f).relative_to(root)): h for f, h in copy_hashes.items()},
         })
+    if a.revise_context:
+        trial["suggested_context"] = str(inputs / "analyst revised.gpkg")
     (root / "trial.json").write_text(json.dumps(trial, indent=2), encoding="utf-8")
     print("Desktop trial prepared; analyst interaction remains untested", flush=True)

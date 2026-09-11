@@ -1,8 +1,10 @@
 # Run with the same R environment as the provider, using installed packages.
 args <- commandArgs(trailingOnly = TRUE)
-stopifnot(length(args) %in% c(3L, 4L, 5L))
-revision <- length(args) == 5L && identical(args[4], "revise-context")
-study_context <- revision || (length(args) == 4L && identical(args[4], "study-context"))
+stopifnot(length(args) %in% 3:6)
+revision <- length(args) >= 5L && identical(args[4], "revise-context")
+study_context <- revision || (length(args) >= 4L && identical(args[4], "study-context"))
+purpose <- if (revision && length(args) == 6L) args[6] else
+  if (!revision && study_context && length(args) == 5L) args[5] else "terrain"
 .libPaths(c(args[1], .libPaths()))
 warnings_seen <- character()
 result <- withCallingHandlers(fgqgis::with_qgis_spatial_environment({
@@ -20,7 +22,9 @@ result <- withCallingHandlers(fgqgis::with_qgis_spatial_environment({
   }
   review <- if (study_context) fluvgeo::read_study_context_summary(args[2]) else
     fluvgeo::terrain_development_summary(network = args[2])
-  output <- fluvgeo::terrain_development_report(review, file.path(args[3], "direct-report.html"))
+  output <- if (study_context && purpose != "terrain")
+    fluvgeo::study_context_report(args[2], file.path(args[3], "direct-report.html"), purpose) else
+    fluvgeo::terrain_development_report(review, file.path(args[3], "direct-report.html"))
   list(r = R.version.string, fluvgeo = as.character(utils::packageVersion("fluvgeo")),
     fluvgeo_path = find.package("fluvgeo"), sf = as.character(utils::packageVersion("sf")),
     terra = as.character(utils::packageVersion("terra")), spatial = as.list(sf::sf_extSoftVersion()),
@@ -35,6 +39,9 @@ result$warnings <- unique(warnings_seen)
 if (revision) result$only_requested_text_changed <- TRUE
 provider <- xml2::read_html(file.path(args[3], if (study_context) "study review.html" else "network review.html"))
 direct <- xml2::read_html(file.path(args[3], "direct-report.html"))
+stopifnot(identical(xml2::xml_text(xml2::xml_find_first(provider, "//title")),
+                   xml2::xml_text(xml2::xml_find_first(direct, "//title"))))
+result$report_purpose <- purpose
 tables <- function(doc) vapply(xml2::xml_find_all(doc, "//table"),
   function(x) gsub("[[:space:]]+", " ", xml2::xml_text(x)), character(1))
 pt <- tables(provider); dt <- tables(direct)

@@ -3,3 +3,4 @@
 .Ruserdata
 dev/local-library/
 dev/check-output/
+dev/scripts/__pycache__/

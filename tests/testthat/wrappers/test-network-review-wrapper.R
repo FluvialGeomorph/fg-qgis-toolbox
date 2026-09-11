@@ -92,10 +92,11 @@ test_that("network review matches the backend and preserves retained sources", {
     study_script <- system.file("rscripts", "fg_review_study_area.rsx", package = "fgqgis", mustWork = TRUE)
     study_output <- file.path(root, "study review.html")
     actual <- run_rsx_fixture(study_script, list(INPUT = context, OUTPUT = study_output))
+    reopened <- fluvgeo::read_study_context_summary(context)
     for (field in c("study_area", "streams", "reaches", "surveys", "event_evidence",
       "gaps", "assessment", "review_actions", "reconstruction"))
-      expect_equal(actual$review[[field]], expected[[field]], info = field)
-    expect_equal(nrow(actual$review$surveys), 3L)
+      expect_equal(reopened[[field]], expected[[field]], info = field)
+    expect_equal(nrow(reopened$surveys), 3L)
     expect_true(file.exists(study_output))
     expect_error(run_rsx_fixture(study_script, list(INPUT = context, OUTPUT = study_output)), "already exists")
     expect_error(run_rsx_fixture(study_script, list(INPUT = input, OUTPUT = file.path(root, "no.html"))), "context binding")

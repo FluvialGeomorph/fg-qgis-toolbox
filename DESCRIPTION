@@ -1,6 +1,6 @@
 Package: fgqgis
 Title: FluvialGeomorph Tools for the QGIS R Processing Provider
-Version: 0.0.0.9003
+Version: 0.0.0.9005
 Authors@R: c(
  person("Michael", "Dougherty", , "Michael.P.Dougherty@usace.army.mil",
  role = "aut",

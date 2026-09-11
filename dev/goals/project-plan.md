@@ -7,7 +7,41 @@ science as Shiny. Support Study Area configuration and description, terrain
 development, forensic reconstruction of archived projects, and eventual FGDB
 preparation without replacing production ArcGIS prematurely.
 
+## Foundational workflow requirements
+
+Follow the shared [reporting intent](../../../fluvgeo/dev/goals/reporting-intent.md)
+when designing future tools:
+
+- **New project / Define Study Area:** progressively capture customer purpose,
+  candidate scope, Streams/Reaches and planned observations. Open choices are
+  expected; do not require an archive, FileGDB staging or a completed acquisition.
+- **Legacy project / Staging Report:** recover intended hierarchy and actual
+  survey evidence from selected artifacts, preserve competing interpretations,
+  and qualify the configured FileGDB-to-GPKG migration separately.
+- Both work on one shared Study Area configuration and support a neutral
+  **Study Area Report**. Terrain Development explains terrain inputs/processing/
+  limitations using that same definition. Do not create duplicate schemas,
+  mandatory report-per-step paperwork or a second client-side validator.
+
+Retain human scope/segmentation decisions; automate mechanical bookkeeping.
+Distinguish planned campaigns from actual Survey Events and open design choices
+from missing historical facts. Test both entry cases before claiming general
+configuration support. These are future tool requirements: the existing saved-
+context reviewer and name/note editor are narrower. The first new-project starter
+and report-view selectors are now implemented below; general configuration remains
+open.
+
 ## Current scope
+
+**Resumed by the user, 2026-09-10:** the foundational new-project versus legacy
+workflow clarification is recorded. The existing bounded name/note editor's
+analyst run is technically verified and the user found its form crystal clear
+and familiar from ArcGIS Pro Script tools. That trial is closed. This is a
+shared-context building block, not yet a Define Study Area wizard or migration
+converter. The accepted
+[FileGDB staging -> GPKG desktop -> FGDB path](../../../FG-architecture/dev/decisions/adr-0005-analyst-staged-archive-migration.md)
+is grounded in the new `FG-filedata` workspace folder. Complete staging schemas
+and conversion qualification remain separate from this small desktop form trial.
 
 Package and AI-assisted foundations are implemented. The first experimental
 network-review wrapper now delegates to the fluvgeo Terrain Development report.
@@ -18,6 +52,27 @@ read-only tool, not complete interoperability. See the
 [qualification summary](../features/qgis-provider-qualification.md).
 
 ## Next bounded milestone
+
+The [one-edit analyst return](../features/review-study-area.md#analyst-editor-return-2026-09-10)
+passes technical review: the requested name is exact, blank ADD_NOTE preserves
+existing notes, other context and inventoried inputs are unchanged, and report
+tables agree with direct R. The analyst confirmed clarity and familiarity; no
+repeat execution or developer work is assigned to the analyst.
+
+**Implemented next slice:** [Start Study Area](../features/start-study-area.md)
+creates a named draft and optional scope notes using the shared context, with a
+short Define Study Area report. It requires no archive, terrain or completed
+survey. Actual isolated QGIS execution and offscreen form qualification passed
+on 2026-09-11. The one-start analyst return is technically verified; the user
+explicitly defers report feedback and asks development to proceed. The next slice
+is implemented and developer-qualified: explicit report-view selection on
+reopening/revision, preserving the existing
+Terrain Development default and the frozen analyst library/profile. Do not call
+this a general planning wizard. See [the report-view contract](../features/review-study-area.md#report-view-selection-2026-09-11).
+The execution history below remains supporting evidence, not extra assigned work.
+No repeat analyst run is required now. The next functional increment should expand
+progressive Study Area configuration; report feedback is deferred to the next round,
+not inferred from successful execution.
 
 The analyst trial has been returned and reviewed: desktop report generation
 works, but Cancel was delayed and a complete report remained after QGIS reported

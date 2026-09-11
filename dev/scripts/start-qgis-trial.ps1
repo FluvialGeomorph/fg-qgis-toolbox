@@ -10,7 +10,7 @@ param(
 $ErrorActionPreference = 'Stop'
 $trialRoot = (Resolve-Path -LiteralPath $TrialDirectory).Path
 $trial = Get-Content -LiteralPath (Join-Path $trialRoot 'trial.json') -Raw | ConvertFrom-Json
-if ($trial.schema_version -notin @(1, 2) -or $trial.status -ne 'prepared-not-analyst-qualified' -or
+if ($trial.schema_version -notin @(1, 2, 3, 4) -or $trial.status -ne 'prepared-not-analyst-qualified' -or
     [IO.Path]::GetFullPath($trial.root) -ne $trialRoot) { throw 'Invalid or relocated trial; prepare a new one.' }
 $profileRoot = Join-Path $trialRoot 'profile'
 if ([IO.Path]::GetFullPath($trial.profiles_path) -ne $profileRoot -or $trial.profile_name -ne 'default') {
@@ -21,17 +21,54 @@ function Assert-TrialHash([string]$Path, [string]$Expected) {
         throw "Trial dependency changed: $Path. Requalify before launching."
     }
 }
-Assert-TrialHash $trial.input $trial.input_sha256
+if ($trial.schema_version -ne 4) { Assert-TrialHash $trial.input $trial.input_sha256 }
 Assert-TrialHash (Join-Path $trial.osgeo 'share/proj/proj.db') $trial.proj_sha256
 $scriptName = 'fg_review_stream_network.rsx'
 $toolName = 'Review Stream Network GeoPackage (experimental)'
-if ($trial.schema_version -eq 2) {
-    if ($trial.algorithm -ne 'r:fgreviewstudyarea' -or $trial.script_name -ne 'fg_review_study_area.rsx' -or
+if ($trial.schema_version -eq 4) {
+    if ($trial.algorithm -ne 'r:fgstartstudyarea' -or $trial.script_name -ne 'fg_start_study_area.rsx' -or
+        $trial.provider -ne '4.1.0-fg-text1' -or $trial.input -or $trial.input_files) {
+        throw 'Invalid new Study Area trial contract.'
+    }
+    foreach ($output in @(@($trial.suggested_context, '.gpkg'), @($trial.suggested_output, '.html'))) {
+        if (!$output[0]) { throw 'New-study destination is required.' }
+        $destination = [IO.Path]::GetFullPath($output[0])
+        if (!$destination.StartsWith($trialRoot + [IO.Path]::DirectorySeparatorChar, [StringComparison]::OrdinalIgnoreCase) -or
+            [IO.Path]::GetExtension($destination) -ne $output[1] -or
+            !(Test-Path -LiteralPath ([IO.Path]::GetDirectoryName($destination)) -PathType Container)) {
+            throw 'New-study destination must be within the trial folder with the required extension.'
+        }
+        if (Test-Path -LiteralPath $destination) { throw 'New-study destination already exists; review the returned trial rather than rerunning it.' }
+    }
+    $scriptName = $trial.script_name
+    $toolName = 'Start Study Area (experimental)'
+}
+if ($trial.schema_version -in @(2, 3)) {
+    $expectedAlgorithm = 'r:fgreviewstudyarea'
+    $expectedScript = 'fg_review_study_area.rsx'
+    if ($trial.schema_version -eq 3) {
+        $expectedAlgorithm = 'r:fgrevisestudyarea'
+        $expectedScript = 'fg_revise_study_area.rsx'
+    }
+    if ($trial.algorithm -ne $expectedAlgorithm -or $trial.script_name -ne $expectedScript -or
         !$trial.input_files -or @($trial.input_files.PSObject.Properties).Count -eq 0) {
         throw 'Invalid saved Study Area trial contract.'
     }
     $scriptName = $trial.script_name
     $toolName = 'Review Saved Study Area (experimental)'
+    if ($trial.schema_version -eq 3) {
+        if ($trial.provider -ne '4.1.0-fg-text1' -or !$trial.suggested_context) {
+            throw 'Editing trial requires the qualified text provider and a context destination.'
+        }
+        $contextOutput = [IO.Path]::GetFullPath($trial.suggested_context)
+        $sourceInput = [IO.Path]::GetFullPath($trial.input)
+        if ([IO.Path]::GetDirectoryName($contextOutput) -ne [IO.Path]::GetDirectoryName($sourceInput) -or
+            [IO.Path]::GetExtension($contextOutput) -ne '.gpkg' -or $contextOutput -eq $sourceInput -or
+            !$sourceInput.StartsWith($trialRoot + [IO.Path]::DirectorySeparatorChar, [StringComparison]::OrdinalIgnoreCase)) {
+            throw 'Revised context destination must be a different GeoPackage beside the trial input.'
+        }
+        $toolName = 'Revise Study Area Details (experimental)'
+    }
     $coveredInput = $false
     foreach ($entry in $trial.input_files.PSObject.Properties) {
         $inputFile = [IO.Path]::GetFullPath((Join-Path $trialRoot $entry.Name))
@@ -59,7 +96,9 @@ foreach ($required in @($launcher, (Join-Path $trial.r_home 'bin/Rscript.exe'),
     if (!(Test-Path -LiteralPath $required -PathType Leaf)) { throw "Required trial dependency is absent: $required" }
 }
 Write-Output "Tool: $toolName"
-Write-Output "Input: $($trial.input)"
+if ($trial.schema_version -eq 4) { Write-Output 'Input: none; supply a working name and optional scope notes.' }
+else { Write-Output "Input: $($trial.input)" }
+if ($trial.schema_version -in @(3, 4)) { Write-Output "New context destination: $($trial.suggested_context)" }
 Write-Output "New report destination: $($trial.suggested_output)"
 if ($CheckOnly) { Write-Output 'Trial launch checks passed; no QGIS process started.'; return }
 # A second instance could contend for the same profile and database handles.
@@ -85,7 +124,8 @@ try {
     & $launcher --profiles-path $profileRoot --profile default --nologo --noversioncheck
     if ($LASTEXITCODE -ne 0) { throw "QGIS launcher exited with $LASTEXITCODE" }
     Write-Output 'Trial launch requested. Confirm a visible QGIS window before continuing; process startup alone is not desktop qualification.'
-    Write-Output "Trial input: $($trial.input)"
+    if ($trial.schema_version -ne 4) { Write-Output "Trial input: $($trial.input)" }
+    if ($trial.schema_version -in @(3, 4)) { Write-Output "New context destination: $($trial.suggested_context)" }
     Write-Output "New report destination: $($trial.suggested_output)"
 } finally {
     foreach ($key in $previousValues.Keys) {

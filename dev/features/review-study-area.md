@@ -82,7 +82,7 @@ old cancellation-profile preflight passed without starting QGIS or editing any
 manifest. No R package/backend code changed in this preparation step, so package
 checks were not repeated. This is not a complete dependency lock or an installer.
 
-The [current analyst instructions](../workflows/qgis-desktop-trial.md#current-trial-saved-study-area-2026-09-10)
+The [retained saved-context instructions](../workflows/qgis-desktop-trial.md#completed-trial-saved-study-area-2026-09-10)
 request one ordinary run and feedback on context selection and restored scope.
 The analyst has returned successful execution and clear interaction; see closure below.
 No cancellation repeat or developer preparation is assigned to the analyst.
@@ -183,3 +183,117 @@ general hierarchy/AOI/event editing and production provider maintenance. No furt
 cancellation or old saved-context analyst repetition is requested. The next useful
 interaction is one intentional draft revision and review with this small form;
 prepare that separately without changing an active QGIS session.
+
+## Resumed editor trial preparation (2026-09-10)
+
+The user resumed toolbox development after clarifying new-project design versus
+legacy reconstruction. This next trial qualifies the existing name/note editor,
+which is useful to both; it does not implement a general Define Study Area tool.
+The [current analyst instructions](../workflows/qgis-desktop-trial.md) request one
+intentional revision, with no cancellation repeat or developer work for the user.
+
+Preparation now supports `--revise-context --prepare-desktop-trial`. Launch schema
+3 names the exact editor/script, text-safe candidate and distinct same-folder
+context destination, retaining the copied-input and plugin fingerprints. Schemas
+1/2 remain supported. No R package, wrapper or scientific backend is changed by
+this preparation; it uses the already-qualified installed fgqgis 0.0.0.9003 and
+fluvgeo 2026.09.10.9000 in `study-edit-v1/r-library`, with provider 4.1.0-fg-text1.
+The frozen report is the earlier combined presentation, not the new prospective
+design/staging view selection. This distinction is stated in the analyst guide.
+
+**Verified preparation:** `dev/check-output/desktop-trial-study-edit-v1/` contains
+the new profile, copied Cole Creek inputs and schema-3 launch manifest. Actual
+QGIS 3.44.14 / provider 4.1.0-fg-text1 execution preserved the requested name and
+note exactly, with other reopened context arguments unchanged. All 19 report
+tables agree with direct R except fresh validation time. Source and copied input
+fingerprints match; overwrite, missing-input, blank-edit and report-collision
+cases failed without replacing outputs. No direct-comparison R warnings occurred.
+
+The new launcher passed valid preflight plus twelve in-memory refusal checks.
+The earlier schema-2 trial passed its six refusal checks, and schema-1 preflight
+still passed, all without launching QGIS or modifying saved manifests. Strict
+context validation and documentation checks are part of completion verification.
+R/package/wrapper code is unchanged, so package checks were not repeated for this
+development-harness change. No visible QGIS session was launched; analyst usability
+remains untested until the one-edit trial is returned.
+
+## Analyst editor return (2026-09-10)
+
+**Verified:** the analyst completed the requested edit and stopped before the
+developer section. The saved Processing log identifies QGIS 3.44.14, provider
+4.1.0-fg-text1 and the frozen trial library; execution succeeded in 14.83 seconds.
+The submitted name was `Papillion Creek — editing trial`; ADD_NOTE was blank.
+The output `Cole Créek inputs/analyst-revised.gpkg` preserves that name exactly,
+including the em dash. Existing notes are unchanged, and restoring only the
+name in memory makes all reopened context arguments identical to the original.
+This return tests name-only editing, not analyst use of note appending.
+
+The analyst chose `Cole Créek inputs/report.html` and saved
+`Cole Créek inputs/analyst-edit-log.txt`; these valid alternate filenames do not
+require a repeat run. All 19 report tables agree with a fresh direct-R rendering
+from the revised context except the validation timestamp. All 17 inventoried
+input files retain their preparation hashes. The returned context, report and
+log retain their hashes across this read-only review. No edit was rerun, no
+QGIS session was changed, and no source/package code was modified for the review.
+The saved log is readable as Windows-1252, not UTF-8; the actual context and HTML
+preserve the requested Unicode text. No data-corruption finding follows from
+misreading that log as UTF-8.
+
+Review script, comparison HTML and machine-readable evidence are retained under
+ignored `dev/check-output/desktop-trial-study-edit-v1/analyst-return-review/`.
+The comparison used the frozen library, not the current workspace backend, and
+reported no warnings. **Analyst-confirmed:** the user found the form "crystal
+clear" and said it matches the familiar ArcGIS Pro Script tool form layout.
+The bounded editor trial is closed; this usability finding is user testimony,
+not inferred from technical checks. No further run or developer
+preparation is assigned to the analyst. This does not qualify the new reporting
+views, general Study Area configuration or production deployment.
+
+## Report-view selection (2026-09-11)
+
+The user returned the new-study starter run, deferred report feedback and asked
+to continue implementation. **Review Saved Study Area** and **Revise Study Area
+Details** now add a REPORT VIEW selector: Terrain Development (compatible default),
+Define Study Area, or Staging Report. The backend owns rendering through
+`study_context_report()` and the appended `report_purpose` argument on revision.
+No schema, identity, parentage, linked evidence or acceptance changes with the view.
+No extra read/validation pass is added by the review wrapper.
+
+Select Define Study Area to continue a new draft without returning to the combined
+terrain presentation. Select Staging Report for saved reconstruction context;
+it does not freshly inspect an unsaved archive/staging path. Neutral Study Area
+reporting and full hierarchy editing remain unimplemented. A view-only change
+uses the reviewer, not the editor; the editor still requires an effective name
+change or appended note. Existing notes and all non-edited context remain intact.
+
+QGIS metadata uses a zero-based selection (0 terrain, 1 definition, 2 staging).
+An omitted value in ordinary-R wrapper tests preserves the old default; invalid
+values fail visibly. This requires fgqgis 0.0.0.9005 and fluvgeo 2026.09.11.9000
+in a new isolated development library. The old starter/editor analyst libraries
+and profiles are not upgraded in place.
+
+**Verified development qualification:** 353 focused backend assertions, 125
+explicit testthis wrapper assertions and 92 fast package assertions pass without
+failures or skips. Actual QGIS 3.44.14 / provider 4.1.0-fg-text1 runs qualify the
+Staging reviewer (success, overwrite and missing-input cases) and Define Study
+Area editor (success plus four refusal cases). Direct-R report comparisons and
+context/input preservation checks pass. Both actual offscreen QGIS forms preserve
+all three choices and default to Terrain Development; their screenshots were
+reviewed for legibility. All three views also pass ordinary-R wrapper tests.
+
+The initial developer run exposed a QGIS enum-parser ambiguity: a missing explicit
+default consumed the last word of Staging Report. QGIS's own generated script
+syntax supplies the final `0`; the corrected metadata is regression-tested.
+Qualification evidence is under ignored `dev/check-output/report-views-v1/`;
+failed initial parser runs remain there separately from successful final runs.
+No visible analyst session or existing trial library was changed. This is
+developer qualification, not analyst report-usability acceptance or deployment.
+
+Native source-package build/check completes with fgqgis `Status: OK` and fluvgeo
+`Status: 2 NOTEs` (existing undeclared `methods` use and package-wide globals/
+imports), without check errors or warnings. Manuals/vignettes were excluded;
+fluvgeo's full tests/examples were excluded and its focused suite ran separately.
+Network-index and workstation `du` console diagnostics remain environmental
+limitations; live external-service tests and production qualification were not
+performed. Strict context validation and whitespace checks complete the
+documentation review.

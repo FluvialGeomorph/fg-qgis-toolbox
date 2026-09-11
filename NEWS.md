@@ -1,3 +1,16 @@
+# fgqgis 0.0.0.9005
+
+- Saved Study Area review and revision now offer Terrain Development, Define
+  Study Area and Staging Report views. The existing Terrain default is preserved;
+  choosing a view does not change the saved study or establish acceptance.
+
+# fgqgis 0.0.0.9004
+
+- Added experimental Start Study Area: a thin fluvgeo adapter creating a named
+  draft context and Define Study Area report without requiring acquired data.
+  This new wrapper still requires actual-provider qualification; existing
+  analyst profiles and production libraries are unchanged.
+
 # fgqgis 0.0.0.9003
 
 - Added experimental Revise Study Area Details: a thin adapter for an existing

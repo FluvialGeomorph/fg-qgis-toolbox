@@ -41,7 +41,7 @@ Study Area context used by the Cole Creek development demonstration.
 
 **Review Saved Study Area** now opens a separate context GeoPackage containing
 the supplied hierarchy, event inventory, notes and links to the network and terrain
-manifest. It regenerates the same report without rerunning the demonstration's
+manifest. It regenerates a selected report without rerunning the demonstration's
 setup script. Keep the whole linked folder together; missing evidence remains
 visible. See [the tool contract](dev/features/review-study-area.md).
 
@@ -55,7 +55,22 @@ the original and refresh the report. Blank fields keep current values. This does
 not edit hierarchy identities, geometry or terrain selections. Free-text transport
 requires the development provider correction described in
 [the editing record](dev/features/review-study-area.md#bounded-editing-step-2026-09-10);
-the new form is not yet analyst-qualified or deployed.
+the bounded form trial is analyst-qualified, but not deployed to production.
+
+The developing reviewer/editor now offers **REPORT VIEW**: Terrain Development
+(compatible default), Define Study Area, or Staging Report. A view changes only
+presentation. Choose Define Study Area when continuing a new draft. The existing
+analyst profiles are frozen at their tested versions; these new selectors are
+qualified separately, not silently installed into those profiles.
+
+**Start Study Area** begins a genuinely new draft with a working name and optional
+purpose/scope notes, saving the shared context and a short **Define Study Area**
+report. No archive, boundary, terrain or completed survey is required. It creates
+a new local identity, so use the existing editor to continue a draft rather than
+starting it again. Actual-provider and offscreen form checks passed; the
+[one-start analyst return](dev/workflows/qgis-desktop-trial.md) is technically
+verified, with report feedback deferred by the user to the next round. No repeat
+run is needed. See [scope and verification](dev/features/start-study-area.md).
 
 ## What the first test tells us
 
@@ -89,7 +104,7 @@ inline help and delegates scientific work to fluvgeo. This is not a new Python
 plugin. The [working architecture decision](dev/decisions/ADR-0002-r-package-processing-foundation.md)
 records the package, provider and testing choices.
 
-- `inst/rscripts/`: three experimental wrappers, not approved for deployment.
+- `inst/rscripts/`: four experimental wrappers, not approved for deployment.
 - `R/` and `man/`: documented package support; `qgis_scripts()` locates assets
   without installing or configuring anything.
 - `tests/testthat/`: fast package tests and a separate testthis wrapper suite
