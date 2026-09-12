@@ -30,6 +30,8 @@ p.add_argument("--reach-areas-context", action="store_true", help="Qualify expli
 p.add_argument("--reaches-context", action="store_true", help="Qualify explicit Reach addition")
 p.add_argument("--report-view", type=int, choices=(0, 1, 2), default=0,
                help="Saved-context report selection: terrain=0, definition=1, staging=2")
+p.add_argument("--terrain-references", action="store_true",
+               help="Opt in to selected-event DEM reference review in the saved-context reviewer")
 p.add_argument("--isolate-r-spatial-env", action="store_true",
                help="Test R without inherited OSGeo GDAL/PROJ overrides; changes this process only")
 p.add_argument("--inspect-dialog-only", action="store_true",
@@ -41,6 +43,8 @@ p.add_argument("--study-context", action="store_true",
 p.add_argument("--revise-context", action="store_true",
                help="Test name/note editing and new-file reporting on a copied context folder")
 a = p.parse_args()
+if a.terrain_references and (not a.study_context or a.revise_context or a.prepare_desktop_trial):
+    p.error("Terrain reference qualification requires read-only --study-context, not editing or desktop preparation")
 if a.terrain_metadata_context and (a.event_terrain_context or a.survey_event_context or a.reach_areas_context or a.reaches_context or a.streams_context or a.boundary_context or a.start_context or a.study_context or a.revise_context or a.prepare_desktop_trial or a.isolate_r_spatial_env or a.report_view):
     p.error("Terrain metadata qualification uses its own isolated mode")
 if a.event_terrain_context and (a.survey_event_context or a.reach_areas_context or a.reaches_context or a.streams_context or a.boundary_context or a.start_context or a.study_context or a.revise_context or a.prepare_desktop_trial or a.isolate_r_spatial_env or a.report_view):
@@ -204,13 +208,16 @@ assert record["parameters"] == (["INPUT", "EVENT_ID", "VERTICAL_UNIT", "VERTICAL
                                 ["INPUT", "BOUNDARY", "BOUNDARY_LAYER", "RATIONALE", "CONTEXT", "OUTPUT"] if a.boundary_context else
                                 ["STUDY_NAME", "SCOPE_NOTES", "CONTEXT", "OUTPUT"] if a.start_context else
                                 ["INPUT", "NEW_NAME", "ADD_NOTE", "REPORT_VIEW", "CONTEXT", "OUTPUT"]
-                                if a.revise_context else ["INPUT", "REPORT_VIEW", "OUTPUT"]
+                                if a.revise_context else ["INPUT", "REPORT_VIEW", "TERRAIN_REFERENCES", "OUTPUT"]
                                 if a.study_context else ["INPUT", "OUTPUT"])
 if a.study_context:
     record["report_view_options"] = algorithm.parameterDefinition("REPORT_VIEW").options()
     assert record["report_view_options"] == ["Terrain Development", "Define Study Area", "Staging Report"], repr(record["report_view_options"])
     assert int(algorithm.parameterDefinition("REPORT_VIEW").defaultValue()) == 0
     record["report_view"] = a.report_view
+    if not a.revise_context:
+        assert algorithm.parameterDefinition("TERRAIN_REFERENCES").defaultValue() is False
+        record["terrain_references"] = a.terrain_references
 if a.revise_context:
     assert algorithm.parameterDefinition("ADD_NOTE").multiLine()
 
@@ -313,6 +320,7 @@ if a.inspect_dialog_only:
     dialog = AlgorithmDialog(algorithm.create())
     dialog.setParameters({"INPUT": str(copied), "OUTPUT": str(output)} |
                          ({"REPORT_VIEW": a.report_view} if a.study_context else {}) |
+                         ({"TERRAIN_REFERENCES": a.terrain_references} if a.study_context and not a.revise_context else {}) |
                          ({"CONTEXT": str(revision)} | edit_values if a.revise_context else {}))
     dialog.resize(1100, 750)
     dialog.show()
@@ -329,6 +337,11 @@ if a.inspect_dialog_only:
             dialog.setParameters(params | {"REPORT_VIEW": view})
             assert dialog.createProcessingParameters()["REPORT_VIEW"] == view
         dialog.setParameters(params)
+        if not a.revise_context:
+            for selected in (False, True):
+                dialog.setParameters(params | {"TERRAIN_REFERENCES": selected})
+                assert dialog.createProcessingParameters()["TERRAIN_REFERENCES"] is selected
+            dialog.setParameters(params)
     assert dialog.grab().save(str(root / "parameter-dialog.png"))
     record["dialog_parameters_roundtrip"] = True
     record["source_unchanged"] = digest(a.input) == source_hash
@@ -344,6 +357,8 @@ def run_case(name, source, destination, overrides=None):
     params = {"INPUT": str(source), "OUTPUT": str(destination)}
     if a.study_context:
         params["REPORT_VIEW"] = a.report_view
+        if not a.revise_context:
+            params["TERRAIN_REFERENCES"] = a.terrain_references
     if a.revise_context:
         params.update({"CONTEXT": str(revision)} | edit_values)
     params.update(overrides or {})
@@ -393,7 +408,7 @@ with (root / "direct-evidence.log").open("w", encoding="utf-8") as log:
                     str(Path(__file__).with_name("qgis-direct-evidence.R")),
                     str(a.r_library.resolve()), str(revision if a.revise_context else copied), str(root)] +
                     (["revise-context", str(copied), ("terrain", "definition", "staging")[a.report_view]] if a.revise_context else
-                    ["study-context", ("terrain", "definition", "staging")[a.report_view]] if a.study_context else []),
+                    ["study-context", ("terrain", "definition", "staging")[a.report_view], str(a.terrain_references)] if a.study_context else []),
                    stdout=log, stderr=subprocess.STDOUT, check=True)
 
 if a.prepare_desktop_trial:

@@ -17,6 +17,14 @@ is neither committed nor packaged. No test command downloads dependencies.
 Workspace tests explicitly load sibling source packages; release qualification
 must use identified installed versions instead.
 
+Current early-workflow HTML reports require fluvgeo's optional `gt` dependency
+and its runtime dependencies, plus Pandoc. Provision these in the isolated
+provider library before qualification: the provider resets `.libPaths()` to its
+configured library plus R defaults, so a package available only in another R
+installation or a developer's appended path is insufficient. Missing dependencies
+must fail visibly; wrappers must never install packages at runtime. Review the
+actual reports, not separate responsive-preview fixtures.
+
 ## Normal edit/test loop
 
 1. Put science in fluvgeo first. Add a small adapter in `inst/rscripts/`, following

@@ -18,6 +18,11 @@
   labels and default in actual-provider checks. The provider's [enum syntax](https://north-road.github.io/qgis-processing-r/script-syntax/#enum)
   documents zero-based numeric transport. This selection is not a saved schema
   field or acceptance action; no neutral Study Area view is implied.
+- The read-only reviewer additionally declares `TERRAIN_REFERENCES=boolean False`.
+  It forwards TRUE only when selected, to the existing fluvgeo report argument.
+  Omission/FALSE retains the compatible call; reject malformed nonlogical values
+  in ordinary R and explain incompatible opt-in backends. No reference editor or
+  extra scientific inspection belongs in the wrapper. The revision tool is unchanged.
 - The new `fg_start_study_area` declaration accepts `STUDY_NAME`, optional
   multiline `SCOPE_NOTES`, `CONTEXT` and `OUTPUT`. It has no source-input file;
   a new-study draft needs no acquired data. Actual registry ID `r:fgstartstudyarea`

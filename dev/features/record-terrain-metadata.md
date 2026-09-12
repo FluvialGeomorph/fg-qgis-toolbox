@@ -96,3 +96,61 @@ of already-known assertions and scientific comparison workflows remain separate.
 - Strict reproducibleai validation passes in both repositories with five existing
   seeded-content customization notices. Changes remain uncommitted alongside
   preceding increments; no archive or production deployment changes were made.
+
+## Real-source metadata review (2026-09-12)
+
+The next planned step was to use actual Cole Creek metadata. Read-only GDAL
+inspection of `GDB_Items.Definition` and `GDB_Items.Documentation` for the three
+selected rasters recovered embedded Esri processing histories, not just the
+exported GeoTIFF headers. Sources were `y2006_R1.gdb / dem_2006_ft_50`,
+`y2010_R1.gdb / dem_2010_ft_50` and `y2016_R1.gdb / dem_2016_hydro_50`
+at fluvgeodata commit `25b562d9cbfca4f841aad097e246981322466f5f`.
+
+The recorded `Clip` operations use `ClippingGeometry`, supporting the analyst's
+description of deliberate AOI masking. No percentage or missing-data finding is
+derived from that history. The displayed metre unit belongs to the horizontal
+CRS, not an established elevation unit. No explicit elevation-unit or vertical-
+datum declaration was identified in these records or the fixture storage notes.
+Names containing `ft` remain clues, not populated assertions.
+
+The 2006 history references an upstream raster named `LittlePapillionCreek_2004_ft`.
+This is a lineage ambiguity, not proof that the user-confirmed Survey Event year
+is wrong. Preserve the 2006 event and ask the analyst before reconciling acquisition
+versus source-product dates. Do not copy workstation/account paths from embedded
+history into maintained documentation.
+
+No metadata assertions, acquisition records, reports or source data were changed
+by this review. Actual elevation units/reference now require analyst confirmation
+or additional source documentation before exercising the entry tool on real data.
+Other toolbox development is not technically blocked by those unknowns, but
+substituting another milestone should be an explicit next choice rather than
+inventing metadata to claim this one complete.
+
+## Owner clarification (2026-09-12)
+
+The project owner clarifies the elevation convention as **"feet"**, selected during
+ArcMap/ArcGIS Pro raster work, with special-case exceptions. This correction
+supersedes the earlier wording "US feet"; FG did not specifically require U.S.
+survey feet. This is attributed domain evidence, not a newly discovered embedded
+raster declaration. Do not propagate the convention without evidence to
+exceptional or unrelated data.
+
+Preserve the corrected wording. The [ArcGIS unit investigation](../../../FGDB/dev/architecture/legacy-esri-elevation-feet.md)
+finds international-foot factors in historic FG slope code and Esri raster
+guidance, but different semantics for generic geoprocessing distance keywords.
+The owner subsequently recalls using Raster Calculator with 0.3048 after deriving
+a DEM from meter-valued point clouds. Meter values divided by 0.3048 produce
+international feet; this is now the supported interpretation of that recalled
+workflow, not independently verified processing history for every project.
+Vertical datum and
+the 2004/2006 source/acquisition relationship also remain unresolved. None can be
+inferred from horizontal metres or the feet convention. This documentation update
+does not modify saved manifests, reports, rasters or Survey Event records; the
+existing generated report therefore still shows its earlier unknown metadata.
+
+The owner commits vertical reference, source provenance and analysis-variable
+units to upcoming development cycles. Follow the
+[scientific traceability roadmap](../../../FGDB/dev/goals/scientific-traceability-roadmap.md),
+keeping scientific logic in fluvgeo and forms here thin. Continue bounded toolbox
+work without turning the whole overhaul into a prerequisite or filling unknowns
+merely to clear report findings.

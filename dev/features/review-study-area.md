@@ -1,5 +1,63 @@
 # Review Saved Study Area
 
+## Optional terrain-reference review (2026-09-12)
+
+Development fgqgis 0.0.0.9014 adds **TERRAIN REFERENCES**, an unchecked checkbox,
+to this existing read-only tool. Select it to include fresh file declarations for
+explicitly selected event DEMs in any of the three report views. The shared
+[fluvgeo contract](../../../fluvgeo/dev/schemas/terrain-reference-review.md#saved-study-area-integration-development-9012)
+owns selection, hash validation, inspection, blocked findings and reporting.
+The compact gt tables are reused without separate preview pages.
+
+Recorded manifest assertions, file declarations and unknown analysis choices
+stay separate. No metadata, elevations, event links or source lineage is changed
+or inferred. An empty new-study draft still renders; a missing/changed selected
+DEM remains blocked, not replaced by a filename search or declared missing CRS.
+Reviewing a report is not accepting metadata or completing scientific comparison.
+This option does not expose analysis-choice editing or catalog discovery.
+
+Omitted/FALSE keeps the existing backend call. TRUE requires the backend's
+`terrain_references` argument; an old backend receives an explicit compatibility
+error, not a silent omission. Current HTML rendering also needs gt and Pandoc.
+Only the reviewer changes, not revision tools, installed analyst profiles or
+production libraries. Test in a new isolated library/profile using the existing
+`qualify-qgis-provider.py --study-context --terrain-references --report-view 1`
+path. Actual QGIS execution and direct-R agreement are distinct from wrapper tests.
+
+**Verified:** QGIS 3.44.14 / provider 4.1.0-fg-text1 executed the option using
+fluvgeo 2026.09.12.9013 and fgqgis 0.0.0.9014 in a new isolated library. All 24
+tables in the Cole Creek Define Study Area report agree with direct R apart from
+fresh validation time. The three selected 2006/2010/2016 DEMs remain
+`VERTICAL_CRS_NOT_EXPOSED`; no project-wide choice was inferred. Source and copied
+input hashes are unchanged. Missing context and existing-output attempts fail
+without publishing/replacing a report. See ignored
+`dev/check-output/study-references-v1/provider-final/`.
+
+The first run in `provider/` deliberately remains failure evidence: gt was absent
+from the provider library, and no report was published. The provider replaces the
+developer's appended library search path. The isolated library now contains gt
+1.3.0 and eight missing runtime dependencies copied from the existing R 4.6.1
+installation; remaining dependencies use registry R 4.6.0 defaults. Versions and
+paths are in `runtime-packages.json`. No downloads or production-library changes
+occurred. This is a qualified local development combination, not a dependency lock
+or production provisioning procedure.
+
+The fast suite passed 185 assertions and the explicit testthis wrapper suite
+passed 227, with zero failures/warnings/skips. A subsequent focused run passed 51
+assertions including old-backend refusal/default compatibility; its existing
+fixture initialization emitted one GDAL_DATA lookup warning. The fresh actual
+provider/direct-R run emitted no R warnings. No new analyst usability claim,
+terrain acceptance or production deployment follows from these checks.
+
+The default-off actual QGIS run also passed in `provider-default/`, agreeing
+with direct R across 12 ordinary report tables, with preserved inputs and no R
+warnings. The built fgqgis source-package check (`--no-manual --no-vignettes`)
+completed with **Status: OK**, including its normal tests/examples. The testthis
+suite ran separately with workspace fluvgeodata; those optional packages were
+unavailable to the native check. Offline repository-index and Windows size-tool
+diagnostics remain environmental limits. fluvgeo methods did not change in this
+client increment, so its previously completed backend checks were not repeated.
+
 Experimental read-only wrapper: `inst/rscripts/fg_review_study_area.rsx`.
 Takes a `FLUVGEO_STUDY_CONTEXT_1` GeoPackage and a new HTML destination. It uses
 the same spatial-environment guard as network review, then delegates to

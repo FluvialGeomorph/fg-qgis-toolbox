@@ -32,6 +32,12 @@ test_that("the review wrapper explains a missing or incompatible backend", {
   }
 })
 
+test_that("terrain reference review is an explicitly optional boolean", {
+  lines <- readLines(system.file("rscripts", "fg_review_study_area.rsx", package = "fgqgis"))
+  expect_true("##TERRAIN_REFERENCES=boolean False" %in% lines)
+  expect_true(any(grepl("^#' TERRAIN_REFERENCES:", lines)))
+})
+
 test_that("the wrapper requires the packaged environment guard", {
   for (script in qgis_scripts()) expect_error(run_rsx_fixture(script, list(
     requireNamespace = function(...) FALSE)), "compatible fgqgis installation")

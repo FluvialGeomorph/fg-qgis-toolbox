@@ -12,6 +12,11 @@ review below is retained as context.
 
 ## Division of labor
 
+The [FG deterministic user-tooling boundary](../../../FG-architecture/dev/decisions/adr-0006-deterministic-user-tooling.md)
+applies to wrappers and backend calls: no AI account, agent or model service is
+required by user workflows. Developer AI assistance does not authorize runtime
+AI integration. Keep unresolved scientific questions as explicit analyst inputs.
+
 | Owner | Responsibility |
 | --- | --- |
 | North Road R Provider | QGIS registration, parameter widgets, R subprocess and output transport. |

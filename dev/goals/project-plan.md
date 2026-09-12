@@ -33,6 +33,14 @@ open.
 
 ## Current scope
 
+The owner has committed three future scientific improvements in the
+[shared roadmap](../../../FGDB/dev/goals/scientific-traceability-roadmap.md):
+vertical reference, survey-source provenance and analysis-variable units.
+Expose shared fluvgeo capabilities through thin forms and selective report prompts;
+do not implement a parallel QGIS metadata/units engine. This is not a blanket pause
+on incremental development. The current Cole Creek feet confirmation and remaining
+unknowns are recorded in [the metadata feature](../features/record-terrain-metadata.md#owner-clarification-2026-09-12).
+
 **Resumed by the user, 2026-09-10:** the foundational new-project versus legacy
 workflow clarification is recorded. The existing bounded name/note editor's
 analyst run is technically verified and the user found its form crystal clear
@@ -52,6 +60,20 @@ read-only tool, not complete interoperability. See the
 [qualification summary](../features/qgis-provider-qualification.md).
 
 ## Next bounded milestone
+
+Current client increment after the shared-backend reference review: the existing
+saved Study Area reviewer now exposes the opt-in `terrain_references` argument
+as an unchecked checkbox. Its isolated QGIS execution agrees with direct R across
+24 Cole Creek report tables, preserving original/copied inputs. See the
+[backend contract](../../../fluvgeo/dev/schemas/terrain-reference-review.md#saved-study-area-integration-development-9012).
+Do not introduce a second inspector, automatic metadata acceptance or an AI
+dependency. Only this reviewer changes; previous analyst profiles and production
+runtimes remain unchanged. The shared source-to-derivative persistence design is
+the next backend gap, not an additional requirement for this review checkbox.
+The bounded review option is developer-qualified; no repeat runtime-discovery or
+cancellation trial is needed. Next develop explicit, attributed persistence of
+analysis-reference choices through the shared backend, keeping source declarations
+and actual transformation evidence separate. This is not automatic metadata recovery.
 
 The [one-edit analyst return](../features/review-study-area.md#analyst-editor-return-2026-09-10)
 passes technical review: the requested name is exact, blank ADD_NOTE preserves

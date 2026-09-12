@@ -1,3 +1,9 @@
+# fgqgis 0.0.0.9014
+
+- Review Saved Study Area now offers an optional read-only terrain-reference
+  review, reusing fluvgeo's selected-event DEM inspector in all three views.
+  Default reporting, saved records and source terrain remain unchanged.
+
 # fgqgis 0.0.0.9013
 
 - Retired Review Event Terrain Coverage and its percentage/chart reporting.
