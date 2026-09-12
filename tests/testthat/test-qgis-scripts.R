@@ -3,7 +3,7 @@ test_that("script discovery has no deployment side effects", {
   expect_type(scripts, "character")
   expect_true(all(file.exists(scripts)))
   expect_false(any(grepl("fixtures", scripts, fixed = TRUE)))
-  expect_setequal(basename(scripts), c("fg_review_stream_network.rsx", "fg_review_study_area.rsx", "fg_revise_study_area.rsx", "fg_start_study_area.rsx"))
+  expect_setequal(basename(scripts), c("fg_review_stream_network.rsx", "fg_review_study_area.rsx", "fg_revise_study_area.rsx", "fg_start_study_area.rsx", "fg_set_study_boundary.rsx", "fg_define_study_streams.rsx", "fg_add_study_reaches.rsx", "fg_set_reach_areas.rsx", "fg_record_survey_event.rsx", "fg_associate_event_terrain.rsx", "fg_record_terrain_metadata.rsx"))
 })
 
 test_that("the thin-wrapper fixture meets the authoring contract", {

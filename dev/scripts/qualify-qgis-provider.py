@@ -21,6 +21,13 @@ for name in ("osgeo", "plugin-parent", "r-home", "r-library", "output-root"):
     p.add_argument("--" + name, required=True, type=Path)
 p.add_argument("--input", type=Path, help="Required for existing-data tools; absent for a new study")
 p.add_argument("--start-context", action="store_true", help="Qualify a new-study draft without input data")
+p.add_argument("--boundary-context", action="store_true", help="Qualify attaching an explicit Study Area boundary")
+p.add_argument("--streams-context", action="store_true", help="Qualify initial Study Stream definition")
+p.add_argument("--terrain-metadata-context", action="store_true", help="Qualify terrain metadata recording")
+p.add_argument("--event-terrain-context", action="store_true", help="Qualify explicit terrain association")
+p.add_argument("--survey-event-context", action="store_true", help="Qualify recording an acquired Survey Event")
+p.add_argument("--reach-areas-context", action="store_true", help="Qualify explicit existing Reach area assignment")
+p.add_argument("--reaches-context", action="store_true", help="Qualify explicit Reach addition")
 p.add_argument("--report-view", type=int, choices=(0, 1, 2), default=0,
                help="Saved-context report selection: terrain=0, definition=1, staging=2")
 p.add_argument("--isolate-r-spatial-env", action="store_true",
@@ -34,6 +41,23 @@ p.add_argument("--study-context", action="store_true",
 p.add_argument("--revise-context", action="store_true",
                help="Test name/note editing and new-file reporting on a copied context folder")
 a = p.parse_args()
+if a.terrain_metadata_context and (a.event_terrain_context or a.survey_event_context or a.reach_areas_context or a.reaches_context or a.streams_context or a.boundary_context or a.start_context or a.study_context or a.revise_context or a.prepare_desktop_trial or a.isolate_r_spatial_env or a.report_view):
+    p.error("Terrain metadata qualification uses its own isolated mode")
+if a.event_terrain_context and (a.survey_event_context or a.reach_areas_context or a.reaches_context or a.streams_context or a.boundary_context or a.start_context or a.study_context or a.revise_context or a.prepare_desktop_trial or a.isolate_r_spatial_env or a.report_view):
+    p.error("Terrain association uses its own isolated mode")
+if a.survey_event_context and (a.reach_areas_context or a.reaches_context or a.streams_context or a.boundary_context or a.start_context or a.study_context or a.revise_context or a.prepare_desktop_trial or a.isolate_r_spatial_env or a.report_view):
+    p.error("Survey Event qualification uses its own isolated mode")
+if a.reach_areas_context and (a.reaches_context or a.streams_context or a.boundary_context or a.start_context or a.study_context or a.revise_context or a.prepare_desktop_trial or a.isolate_r_spatial_env or a.report_view):
+    p.error("Reach-area qualification uses its own isolated mode")
+if a.reaches_context and (a.streams_context or a.boundary_context or a.start_context or a.study_context or a.revise_context or
+                          a.prepare_desktop_trial or a.isolate_r_spatial_env or a.report_view):
+    p.error("Reach qualification uses its own isolated mode")
+if a.streams_context and (a.boundary_context or a.start_context or a.study_context or a.revise_context or
+                          a.prepare_desktop_trial or a.isolate_r_spatial_env or a.report_view):
+    p.error("Stream qualification uses its own isolated mode")
+if a.boundary_context and (a.start_context or a.study_context or a.revise_context or
+                           a.prepare_desktop_trial or a.isolate_r_spatial_env or a.report_view):
+    p.error("Boundary qualification uses its own isolated mode and definition report")
 if a.start_context and (a.input or a.study_context or a.revise_context):
     p.error("New-study qualification has no source input or existing-context mode")
 if a.start_context and a.isolate_r_spatial_env:
@@ -125,6 +149,13 @@ QgsApplication.processingRegistry().addProvider(provider)
 print("R Provider registered", flush=True)
 scripts = a.r_library.resolve() / "fgqgis/rscripts"
 source_script = Path(__file__).resolve().parents[2] / "inst/rscripts" / (
+    "fg_record_terrain_metadata.rsx" if a.terrain_metadata_context else
+    "fg_associate_event_terrain.rsx" if a.event_terrain_context else
+    "fg_record_survey_event.rsx" if a.survey_event_context else
+    "fg_set_reach_areas.rsx" if a.reach_areas_context else
+    "fg_add_study_reaches.rsx" if a.reaches_context else
+    "fg_define_study_streams.rsx" if a.streams_context else
+    "fg_set_study_boundary.rsx" if a.boundary_context else
     "fg_start_study_area.rsx" if a.start_context else
     "fg_revise_study_area.rsx" if a.revise_context else
     "fg_review_study_area.rsx" if a.study_context else "fg_review_stream_network.rsx")
@@ -139,6 +170,13 @@ provider.refreshAlgorithms()
 print("Script folders: " + str(RUtils.script_folders()), flush=True)
 print("Algorithms: " + str([x.id() for x in provider.algorithms()]), flush=True)
 algorithm = QgsApplication.processingRegistry().algorithmById(
+    "r:fgrecordterrainmetadata" if a.terrain_metadata_context else
+    "r:fgassociateeventterrain" if a.event_terrain_context else
+    "r:fgrecordsurveyevent" if a.survey_event_context else
+    "r:fgsetreachareas" if a.reach_areas_context else
+    "r:fgaddstudyreaches" if a.reaches_context else
+    "r:fgdefinestudystreams" if a.streams_context else
+    "r:fgsetstudyboundary" if a.boundary_context else
     "r:fgstartstudyarea" if a.start_context else
     "r:fgrevisestudyarea" if a.revise_context else
     "r:fgreviewstudyarea" if a.study_context else "r:fgreviewstreamnetwork")
@@ -151,7 +189,7 @@ record = {"qgis": Qgis.QGIS_VERSION, "provider": plugin_version(),
           "parameters": [x.name() for x in algorithm.parameterDefinitions()],
           "cases": []}
 record["removed_r_environment_keys"] = []
-if a.start_context or (a.prepare_desktop_trial and a.revise_context):
+if a.start_context or a.boundary_context or a.streams_context or a.reaches_context or a.reach_areas_context or a.survey_event_context or a.event_terrain_context or a.terrain_metadata_context or (a.prepare_desktop_trial and a.revise_context):
     assert record["provider"] == "4.1.0-fg-text1", "Editing trial requires the qualified text-transport candidate"
 if a.isolate_r_spatial_env:
     for key in ("GDAL_DRIVER_PATH", "GDAL_DATA", "PROJ_LIB", "PROJ_DATA"):
@@ -161,7 +199,10 @@ if a.isolate_r_spatial_env:
 (root / "help.html").write_text(algorithm.shortHelpString(), encoding="utf-8")
 assert not algorithm.error, algorithm.error
 assert record["help_present"]
-assert record["parameters"] == (["STUDY_NAME", "SCOPE_NOTES", "CONTEXT", "OUTPUT"] if a.start_context else
+assert record["parameters"] == (["INPUT", "EVENT_ID", "VERTICAL_UNIT", "VERTICAL_REFERENCE", "EVIDENCE", "ANALYST", "MANIFEST", "CONTEXT", "OUTPUT"] if a.terrain_metadata_context else ["INPUT", "EVENT_ID", "TERRAIN", "EVIDENCE", "ANALYST", "MANIFEST", "CONTEXT", "OUTPUT"] if a.event_terrain_context else ["INPUT", "REACH_ID", "ACQUIRED_DATE", "SOURCE_REFERENCE", "EVIDENCE", "CONTEXT", "OUTPUT"] if a.survey_event_context else ["INPUT", "AREAS", "AREA_LAYER", "ID_FIELD", "RATIONALE", "CONTEXT", "OUTPUT"] if a.reach_areas_context else ["INPUT", "STREAM_NAME", "REACH_NAMES", "REACH_SOURCE", "SOURCE_LAYER", "NAME_FIELD", "PARENT_FIELD", "RATIONALE", "CONTEXT", "OUTPUT"] if a.reaches_context else
+                                ["INPUT", "STREAM_NAMES", "STREAM_SOURCE", "SOURCE_LAYER", "NAME_FIELD", "RATIONALE", "CONTEXT", "OUTPUT"] if a.streams_context else
+                                ["INPUT", "BOUNDARY", "BOUNDARY_LAYER", "RATIONALE", "CONTEXT", "OUTPUT"] if a.boundary_context else
+                                ["STUDY_NAME", "SCOPE_NOTES", "CONTEXT", "OUTPUT"] if a.start_context else
                                 ["INPUT", "NEW_NAME", "ADD_NOTE", "REPORT_VIEW", "CONTEXT", "OUTPUT"]
                                 if a.revise_context else ["INPUT", "REPORT_VIEW", "OUTPUT"]
                                 if a.study_context else ["INPUT", "OUTPUT"])
@@ -199,6 +240,41 @@ if a.start_context:
     from qualify_study_start import qualify
     qualify(a, root, app, algorithm, record, Feedback, digest, plugin_parent,
             installed_script, settings if a.prepare_desktop_trial else None)
+    sys.exit(0)
+
+if a.boundary_context:
+    from qualify_study_boundary import qualify
+    qualify(a, root, app, algorithm, record, Feedback, digest)
+    sys.exit(0)
+
+if a.streams_context:
+    from qualify_study_streams import qualify
+    qualify(a, root, app, algorithm, record, Feedback, digest)
+    sys.exit(0)
+
+if a.terrain_metadata_context:
+    from qualify_terrain_metadata import qualify
+    qualify(a, root, app, algorithm, record, Feedback, digest)
+    sys.exit(0)
+
+if a.event_terrain_context:
+    from qualify_event_terrain import qualify
+    qualify(a, root, app, algorithm, record, Feedback, digest)
+    sys.exit(0)
+
+if a.survey_event_context:
+    from qualify_survey_event import qualify
+    qualify(a, root, app, algorithm, record, Feedback, digest)
+    sys.exit(0)
+
+if a.reach_areas_context:
+    from qualify_reach_areas import qualify
+    qualify(a, root, app, algorithm, record, Feedback, digest)
+    sys.exit(0)
+
+if a.reaches_context:
+    from qualify_study_reaches import qualify
+    qualify(a, root, app, algorithm, record, Feedback, digest)
     sys.exit(0)
 
 source_hash = digest(a.input)

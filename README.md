@@ -72,6 +72,50 @@ starting it again. Actual-provider and offscreen form checks passed; the
 verified, with report feedback deferred by the user to the next round. No repeat
 run is needed. See [scope and verification](dev/features/start-study-area.md).
 
+**Set Study Area Boundary** continues a saved draft by importing geometry from
+one explicitly named GeoPackage layer and appending its source/rationale note.
+Save a new context and a mapped Define Study Area report; the study identity and
+other records stay intact. Prepare one polygon or multipart polygon first: the
+tool does not apply the current QGIS selection or silently combine features.
+See [the boundary tool](dev/features/set-study-area-boundary.md) for limits and
+developer qualification. Existing analyst profiles are unchanged.
+
+**Define Initial Study Streams** adds the initial inventory under a saved Study
+Area: enter names for an early draft, or import chosen names and optional areas
+from a prepared GeoPackage layer/table. It creates local Stream identities without
+inferring Reaches or acquisition dates. Existing hierarchy is not replaced. The
+report lists the Streams and maps supplied areas. See [scope and verification](dev/features/define-study-streams.md).
+
+**Add Study Reaches** progressively records named Reaches under explicitly chosen
+existing Streams, either as names alone or from a prepared GeoPackage table/area
+layer. Existing hierarchy stays intact; duplicates within a Stream are refused.
+The report shows parentage and unfinished Reach decisions without inventing areas
+or Survey Events. See [scope and verification](dev/features/add-study-reaches.md).
+
+**Set Reach Areas** supplies a complete first area inventory or revises selected
+existing areas, matching prepared polygons to saved Reach IDs. No identities are
+recreated. Legacy DEM extents can supply explicitly documented candidate areas;
+they are not historic delineations or evidence of valid-cell coverage. See
+[scope and verification](dev/features/set-reach-areas.md).
+
+**Record Survey Event** adds one acquired observation under an existing Reach,
+with its known date precision, source reference and evidence note. Year-only
+dates stay year-only. The report shows the acquisition inventory and the next
+terrain-linking decision; recording a source label does not verify the files or
+establish comparison readiness. See [scope and verification](dev/features/record-survey-event.md).
+
+**Associate Event Terrain** links a chosen local GeoTIFF to a recorded event for
+grid metadata review. It preserves previous file fingerprints and associations,
+saving a new manifest, context and report. Keep terrain inside the linked folder
+tree; this tool does not copy files or convert FileGDBs. The report exposes missing
+vertical metadata and integrity findings without implying scientific readiness.
+See [scope and verification](dev/features/associate-event-terrain.md).
+
+**Record Terrain Metadata** adds evidence-backed elevation-unit and vertical-reference
+assertions for an associated terrain file. Blank fields stay unknown; raster values
+and CRS are untouched. See [the feature](dev/features/record-terrain-metadata.md).
+NoData/AOI masking percentages are not reported as quality metrics.
+
 ## What the first test tells us
 
 The question was whether QGIS can be the desktop interface to our existing R
@@ -104,7 +148,7 @@ inline help and delegates scientific work to fluvgeo. This is not a new Python
 plugin. The [working architecture decision](dev/decisions/ADR-0002-r-package-processing-foundation.md)
 records the package, provider and testing choices.
 
-- `inst/rscripts/`: four experimental wrappers, not approved for deployment.
+- `inst/rscripts/`: experimental wrappers, not approved for deployment.
 - `R/` and `man/`: documented package support; `qgis_scripts()` locates assets
   without installing or configuring anything.
 - `tests/testthat/`: fast package tests and a separate testthis wrapper suite

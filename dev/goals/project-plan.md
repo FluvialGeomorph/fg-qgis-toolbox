@@ -70,9 +70,35 @@ reopening/revision, preserving the existing
 Terrain Development default and the frozen analyst library/profile. Do not call
 this a general planning wizard. See [the report-view contract](../features/review-study-area.md#report-view-selection-2026-09-11).
 The execution history below remains supporting evidence, not extra assigned work.
-No repeat analyst run is required now. The next functional increment should expand
-progressive Study Area configuration; report feedback is deferred to the next round,
-not inferred from successful execution.
+No repeat analyst run is required now. The completed boundary increment is
+[Set Study Area Boundary](../features/set-study-area-boundary.md): explicitly
+attach an extent and rationale to the same identity, with a new context and mapped
+Define Study Area report. General Stream/Reach editing remains separate.
+
+The user has now confirmed that the stepwise report is clear. The current increment
+implements [Define Initial Study Streams](../features/define-study-streams.md), accepting
+names-only drafts or deliberately chosen names/areas, preserving Study Area
+identity and refusing replacement of existing Stream/hierarchy records. The user
+accepted this report increment. [Add Study Reaches](../features/add-study-reaches.md)
+now records progressive, explicit parent assignments while preserving existing
+identities. [Set Reach Areas](../features/set-reach-areas.md) now assigns explicitly
+keyed polygons and revises selected existing areas. Mixed missing/supplied areas
+remain outside schema 1. The legacy test uses a documented DEM-extent candidate:
+historical Reach polygons were not required. [Record Survey Event](../features/record-survey-event.md)
+now captures explicitly evidenced acquisitions under saved Reaches, retaining
+unknown date parts. Planned/undated work stays in notes, not invented event rows.
+The [Associate Event Terrain](../features/associate-event-terrain.md) increment now
+connects local GeoTIFFs to recorded events using shared intake tooling, with new
+manifest/context/report outputs and preserved earlier file snapshots.
+The [coverage experiment was withdrawn](../features/terrain-coverage-review.md):
+intentional NoData masks are not missing data and rectangle occupancy is not a
+quality score. [Record Terrain Metadata](../features/record-terrain-metadata.md)
+now captures evidenced unknown vertical fields without altering terrain. Next
+exercise this with actual source metadata; comparison-specific AOIs and grid
+choices require separate scientific review.
+Grid availability alone is not comparison readiness. Partial-area persistence, structured plans and general
+event editing/reconciliation remain separate gaps. Do not infer complete
+segmentation or create Survey Events automatically.
 
 The analyst trial has been returned and reviewed: desktop report generation
 works, but Cancel was delayed and a complete report remained after QGIS reported

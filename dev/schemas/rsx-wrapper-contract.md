@@ -54,3 +54,78 @@
 complete parser or proof of architectural compliance; review handles ownership
 and scientific meaning. Tests must exercise actual script bodies. Test-only
 scripts stay under `tests/testthat/fixtures/`, never `inst/rscripts/`.
+
+## Explicit boundary import
+
+`fg_set_study_boundary.rsx` declares INPUT/BOUNDARY as GeoPackage files, a required
+BOUNDARY_LAYER string, multiline RATIONALE and CONTEXT/OUTPUT destinations. It
+reads the exact whole layer through sf only after the packaged spatial guard;
+it does not use the current QGIS selection or automatic provider vector loading.
+Geometry requirements and revision behavior belong in fluvgeo. This bounded file
+interface requires one deliberately prepared polygon/multipart feature; it is
+not a new standard requiring every study to originate from a particular polygon
+dataset. See [the feature contract](../features/set-study-area-boundary.md).
+
+## Initial Stream definition
+
+`fg_define_study_streams.rsx` accepts INPUT, optional multiline STREAM_NAMES,
+optional GeoPackage STREAM_SOURCE, SOURCE_LAYER and NAME_FIELD, required multiline
+RATIONALE, CONTEXT and OUTPUT. Require either names-only or a complete source
+selection, never both. Plain newline parsing is transport; names, geometry,
+identity generation and initial-only restrictions belong to fluvgeo. Read sources
+inside the spatial guard, not through automatic provider vector conversion.
+See [the initial Stream contract](../features/define-study-streams.md).
+
+## Progressive Reach addition
+
+`fg_add_study_reaches.rsx` accepts INPUT, optional STREAM_NAME and multiline
+REACH_NAMES, optional GeoPackage REACH_SOURCE with SOURCE_LAYER, NAME_FIELD and
+PARENT_FIELD, required multiline RATIONALE, CONTEXT and OUTPUT. Choose names-only
+under one exact existing Stream name, or a complete source selection whose parent
+field contains exact existing Stream names. fluvgeo owns parent resolution,
+name uniqueness within parents, new IDs, optional polygon validation and safe
+addition. Existing IDs are preserved; source IDs are not adopted. See
+[the additive contract](../features/add-study-reaches.md).
+
+## Existing Reach areas
+
+`fg_set_reach_areas.rsx` reads INPUT and prepared AREAS GeoPackages, exact AREA_LAYER
+and ID_FIELD, required multiline RATIONALE, CONTEXT and OUTPUT. ID_FIELD contains
+exact saved Reach UUIDs, not source identities to reconcile. Read the whole layer
+inside the spatial guard; fluvgeo owns matching, geometry and revision checks.
+Initial areas cover every recorded Reach; later revisions may cover a subset in
+the existing CRS/type. This is the current schema limitation, not a requirement
+that historic projects had polygons. See [the feature](../features/set-reach-areas.md).
+
+## Acquired Survey Event inventory
+
+`fg_record_survey_event.rsx` declares INPUT, exact saved REACH_ID, ACQUIRED_DATE
+as YYYY/ YYYY-MM/ YYYY-MM-DD, SOURCE_REFERENCE, multiline EVIDENCE and new
+CONTEXT/OUTPUT destinations. The actual registry ID is `r:fgrecordsurveyevent`.
+fluvgeo owns date validation, parent matching, repeat refusal and publication.
+The wrapper does not parse source names for dates or treat a source reference as
+an asset link. Planned/undated work remains in notes. See
+[the feature contract](../features/record-survey-event.md).
+
+## Event terrain association
+
+`fg_associate_event_terrain.rsx` declares INPUT, exact EVENT_ID, TERRAIN as a
+GeoTIFF file, multiline EVIDENCE, ANALYST, and new MANIFEST/CONTEXT/OUTPUT paths.
+The verified registry ID is `r:fgassociateeventterrain`.
+The adapter delegates all association, root-relative path, integrity and
+publication rules to fluvgeo inside the spatial guard. It does not use automatic
+QGIS raster transport, copy/export rasters or infer event identities from filenames.
+MANIFEST must live inside the context tree, beside an already linked manifest;
+TERRAIN must be inside that manifest root. See
+[the feature](../features/associate-event-terrain.md).
+
+## Terrain metadata assertions
+
+`fg_record_terrain_metadata.rsx` accepts INPUT, EVENT_ID, VERTICAL_UNIT,
+VERTICAL_REFERENCE, EVIDENCE, ANALYST, MANIFEST, CONTEXT and OUTPUT. Optional blank
+vertical fields remain unchanged/unknown. At least one must supply new metadata.
+The shared `record_study_terrain_metadata()` backend fills previously unknown
+fields in a new manifest/context, with attributed evidence. It preserves raster
+bytes and prior snapshots; it does not transform elevations or certify assertions.
+A shared file's metadata applies to all its event associations.
+See [the feature](../features/record-terrain-metadata.md).
